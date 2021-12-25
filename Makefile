@@ -13,7 +13,7 @@ QEMU    = /opt/qemu/qemu-system-x86_64 -L /opt/qemu/ \
 IMAGE   = cnix-fda.img
 
 .s.o:
-	nasm -g -felf64 -o $@ $<
+	nasm  -felf64 -o $@ $<
 .c.o:
 	$(CC) $(CFLAGS) -o $@ $<
 
@@ -28,6 +28,6 @@ $(IMAGE): boot.bin kernel.bin Makefile
 boot.bin: boot.s
 	nasm -f bin -o boot.bin boot.s
 
-kernel.bin: kernel.o
-	$(LD) -static -T kernel.lds -Map kernel.map -o kernel.dbg kernel.o
+kernel.bin: kernel.o main.o
+	$(LD) -static -T kernel.lds -Map kernel.map -o kernel.dbg kernel.o main.o
 	$(OBJCOPY) -S -R bss -O binary kernel.dbg kernel.bin

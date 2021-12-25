@@ -1,5 +1,5 @@
 	bits	16
-
+	global	_start
 _start:
 	jmp	startup16
 
@@ -74,6 +74,7 @@ startup32:
 	jmp dword 0x08:startup64
 
 	bits	64
+	extern 	cstartup
 startup64:
 	cli
 	mov	ax, 0x10
@@ -84,10 +85,6 @@ startup64:
 	mov	ss, ax
 	mov	rsp, 0x1000
 
-	mov ebp, 0xb8000
-	mov dword [ebp], 0x2700 + 'C'
-	mov dword [ebp+2], 0x2700 + 'N'
-	mov dword [ebp+4], 0x2700 + 'I'
-	mov dword [ebp+6], 0x2700 + 'X'
-	mov dword [ebp+8], 0x2700 + '!'
-	jmp $
+	mov	rax, cstartup
+	jmp	rax
+	jmp	$
