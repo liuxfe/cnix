@@ -1,4 +1,5 @@
 #include <cnix/kernel.h>
+#include <cnix/io.h>
 
 unsigned long cur_org = __p2v(0xb8000);
 int cur_x = 0;

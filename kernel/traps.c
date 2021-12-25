@@ -1,5 +1,6 @@
 #include <cnix/kernel.h>
 #include <cnix/traps.h>
+#include <cnix/io.h>
 
 static void _die(long rsp, long err_code, char* info)
 {
