@@ -1,33 +1,18 @@
-PRIFIX  =
-AS	= nasm
-CC	= $(PRIFIX)gcc -O2 -std=c17
-LD 	= $(PRIFIX)ld
-OBJCOPY = $(PRIFIX)objcopy
-
-CFLAGS  = -c -g -Wall -I../include  \
-          -mcmodel=large -fno-hosted -fno-stack-protector
-
-
 QEMU    = /opt/qemu/qemu-system-x86_64 -L /opt/qemu/ \
           -monitor stdio -display sdl
 IMAGE   = cnix-fda.img
 
-.s.o:
-	nasm  -felf64 -o $@ $<
-.c.o:
-	$(CC) $(CFLAGS) -o $@ $<
-
 run: $(IMAGE)
 	$(QEMU) -fda $(IMAGE)
 
-$(IMAGE): boot.bin kernel.bin Makefile
-	[ -f $(IMAGE) ] || dd if=/dev/zero of=$(IMAGE) count=$$((80*18*2))
-	dd if=boot.bin of=$(IMAGE) count=1 conv=notrunc
-	dd if=kernel.bin of=$(IMAGE) count=80 seek=1 conv=notrunc
+$(IMAGE): boot/boot.bin kernel/kernel.bin Makefile
+	@[ -f $(IMAGE) ] || dd if=/dev/zero of=$(IMAGE) count=$$((80*18*2))
+	@dd if=boot/boot.bin of=$(IMAGE) count=1 conv=notrunc
+	@dd if=kernel/kernel.bin of=$(IMAGE) count=80 seek=1 conv=notrunc
 
-boot.bin: boot.s
-	nasm -f bin -o boot.bin boot.s
+boot/boot.bin: boot/boot.s
+	nasm -f bin -o boot/boot.bin boot/boot.s
 
-kernel.bin: kernel.o main.o
-	$(LD) -static -T kernel.lds -Map kernel.map -o kernel.dbg kernel.o main.o
-	$(OBJCOPY) -S -R bss -O binary kernel.dbg kernel.bin
+kernel/kernel.bin: $(wildcard kernel/*.s) $(wildcard kernel/*.c) \
+                   kernel/kernel.lds kernel/Makefile
+	(cd kernel; make)
