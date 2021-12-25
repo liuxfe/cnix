@@ -24,7 +24,7 @@ SECTIONS
 		*(.rodata.*);
 	}
 
-	. = ALIGN(0x100000);
+	. = ALIGN(0x180000);
 	.bss :
 	{
 		_bss = .;

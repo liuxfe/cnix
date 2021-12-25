@@ -92,13 +92,28 @@ startup64:
 
 	mov	dword [0x100000], 0      ; PML4E
 
+	lidt	[rel gdt_ptr]
+
 	lidt	[rel idt_ptr]
 
 	jmp	cstartup
 
+gdt_ptr:
+	dw 4096 - 1
+	dq GDTtab
 idt_ptr:
 	dw 256 * 8 * 2 - 1
-	dq IDTtable
+	dq IDTtab
+
+GDTtab:
+	dq 0
+	dq 0x0020980000000000   ; Kernel Code
+	dq 0x0000920000000000   ; Kernel Data
+	dq 0x0020f80000000000   ; User Code
+	dq 0x0000f20000000000   ; User Data
+	times 4096 - 5 * 8 db 0	; Tss
+IDTtab:
+	times 256 * 2	dq 0
 
 extern do_div_zero, do_debug, do_nmi, do_breakpoint, do_overflow
 extern do_bound_range, do_invalid_opcode, do_device_not_invalid
@@ -313,7 +328,10 @@ ret_from_kernel_trap:
 	pop  r15
 	iretq
 
-	;section .bss
-	global IDTtable
-IDTtable:
-	resq	256 * 2
+
+	global PML4E, PDPE0, PDT0, PTE0,IDTtab, GDTtab
+	section .bss
+PML4E:	resb	4096
+PDPE0:	resb	4096
+PDT0:	resb	4096
+PTE0:	resb	4096

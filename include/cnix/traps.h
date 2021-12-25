@@ -17,11 +17,11 @@ union IDTdesc64 {
 	int   resvered2  : 32;
     };
 };
-extern union IDTdesc64 IDTtable[256];
+extern union IDTdesc64 IDTtab[256];
 
-extern inline void _set_idt64(long nr, long addr, long attr)
+inline void _set_idt64(long nr, long addr, long attr)
 {
-	union IDTdesc64 * idt = IDTtable + nr;
+	union IDTdesc64 * idt = IDTtab + nr;
 
 	idt->high = 0x00000000ffff8000;
 	idt->low  = 0x00008E0000080000;
