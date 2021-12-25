@@ -2,8 +2,6 @@ QEMU    = /opt/qemu/qemu-system-x86_64 -L /opt/qemu/ \
           -monitor stdio -display sdl
 IMAGE   = cnix-fda.img
 
-run: $(IMAGE)
-	$(QEMU) -fda $(IMAGE)
 
 $(IMAGE): boot/boot.bin kernel/kernel.bin Makefile
 	@[ -f $(IMAGE) ] || dd if=/dev/zero of=$(IMAGE) count=$$((80*18*2))
@@ -19,3 +17,10 @@ kernel/kernel.bin: $(wildcard kernel/*.s) $(wildcard kernel/*.c) \
 
 dep:
 	(cd kernel; make dep)
+
+run: $(IMAGE)
+	$(QEMU) -fda $(IMAGE)
+
+dbg: $(IMAGE)
+	$(QEMU) -S -gdb tcp::4000 &
+	gdb -ex "file kernel/kernel.dbg" -ex "tar remote localhost:4000"
