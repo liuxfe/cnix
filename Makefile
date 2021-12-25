@@ -22,5 +22,5 @@ run: $(IMAGE)
 	$(QEMU) -fda $(IMAGE)
 
 dbg: $(IMAGE)
-	$(QEMU) -S -gdb tcp::4000 &
+	$(QEMU) -fda $(IMAGE) -S -gdb tcp::4000 &
 	gdb -ex "file kernel/kernel.dbg" -ex "tar remote localhost:4000"

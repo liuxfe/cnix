@@ -14,6 +14,24 @@ startup16:
 	mov	ss, ax
 	mov 	sp, 0x1000
 
+	; get memory map
+        mov	edi, 0x500;e820map - KOFFSET
+        xor	ebx, ebx
+    .next:
+        mov	eax, 0xE820
+        mov	ecx, 20
+        mov	edx, 0x534D4150
+        int	15h
+        jc	.faild
+        cmp	ebx, 0
+        je	.done
+        add	edi, 20
+        jmp	.next
+    .faild:
+        jmp	$
+    .done:
+	mov	dword es:[edi+16], 0
+
 	; enable A20
 	in	al, 0x92
 	or	al, 2
