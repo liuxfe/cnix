@@ -16,3 +16,6 @@ boot/boot.bin: boot/boot.s
 kernel/kernel.bin: $(wildcard kernel/*.s) $(wildcard kernel/*.c) \
                    kernel/kernel.lds kernel/Makefile
 	(cd kernel; make)
+
+dep:
+	(cd kernel; make dep)

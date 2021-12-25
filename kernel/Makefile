@@ -18,3 +18,13 @@ OBJS	= $(patsubst %.s,%.o ,$(wildcard *.s)) \
 kernel.bin: $(OBJS) kernel.lds Makefile
 	$(LD) -static -T kernel.lds -Map kernel.map -o kernel.dbg $(OBJS)
 	$(OBJCOPY) -S -R bss -O binary kernel.dbg kernel.bin
+
+dep:
+	sed -n 1,/\#\#\#Depend/p Makefile > makefile.tmp
+	for file in $(wildcard *.c); do \
+		$(CC) $(CFLAGS) -M $$file >> makefile.tmp; \
+	done
+	mv makefile.tmp Makefile
+
+###Depend
+main.o: main.c ../include/cnix/kernel.h
