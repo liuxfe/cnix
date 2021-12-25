@@ -92,7 +92,7 @@ startup64:
 
 	mov	dword [0x100000], 0      ; PML4E
 
-	lidt	[rel gdt_ptr]
+	lgdt	[rel gdt_ptr]
 
 	lidt	[rel idt_ptr]
 
