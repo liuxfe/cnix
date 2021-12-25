@@ -1,13 +1,17 @@
 #include <cnix/kernel.h>
 
+extern void console_early_init();
+extern void console_printc(char ch);
+
+void disp_str(char* s){
+	while(*s){
+		console_printc(*s);
+		s++;
+	}
+}
+
 void cstartup(void){
-	short *p =(short*)__p2v(0xb8000 + 80*2*10);
-	*p++ = 0x2700 | 'C';
-	*p++ = 0x2700 | 'N';
-	*p++ = 0x2700 | 'I';
-	*p++ = 0x2700 | 'X';
-	*p++ = 0x2700 | ' ';
-	*p++ = 0x2700 | '!';
-	*p++ = 0x2700 | ' ';
+	console_early_init();
+	disp_str("Hello World!\nWelcome to CNIX!\n");
 	for(;;);
 }
