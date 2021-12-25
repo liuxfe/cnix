@@ -28,3 +28,6 @@ dep:
 
 ###Depend
 main.o: main.c ../include/cnix/kernel.h
+printk.o: printk.c
+traps.o: traps.c ../include/cnix/kernel.h ../include/cnix/traps.h
+vga.o: vga.c ../include/cnix/kernel.h
