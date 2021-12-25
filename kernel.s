@@ -22,36 +22,17 @@ startup16:
 	mov	cr0, eax
 
 	lgdt	cs:[_tmp_gdtptr - $$]
-	jmp	dword 0x08:startup32 ; goto 32 bits code / protcted mode
+	jmp	dword 0x18:startup32 ; goto 32 bits code / protcted mode
 
 _tmp_gdt:
 	dq	0
-	dq	0x00cf9a000000ffff  ; Kernel 32bit Code
-	dq	0x00cf92000000ffff  ; Kernel 32bit Data
+	dq	0x0020980000000000	; Kernel 64bit Code
+	dq	0x0000920000000000	; Kernel 64bit Data
+	dq	0x00cf9a000000ffff	; Kernel 32bit Code
+	dq	0x00cf92000000ffff	; Kernel 32bit Data
 _tmp_gdtptr:
 	dw	$ - _tmp_gdt - 1
 	dd	_tmp_gdt
-
-msg:	db	"Hello World, CNIX !", 13, 10, 0
-
-
-; display a string
-disp_str:
-	push	ax
-	push	bx
-	mov	ah, 0x0e
-	mov	bx, 0x10
-    .next:
-	mov	al, [si]
-	cmp	al, 0
-	je	.done
-	int	0x10
-	inc	si
-	jmp	.next
-    .done:
-	pop	bx
-	pop	ax
-	ret
 
 	bits	32
 startup32:
@@ -62,6 +43,47 @@ startup32:
 	mov	es,  ax
 	mov	ss,  ax
 	mov	esp, 0x1000
+
+	; tmp paging table at 0x100000
+	mov dword [0x100000], 0x101007      ; PML4E
+	mov dword [0x100800], 0x101007      ; PML4E
+	mov dword [0x101000], 0x102007      ; PDPE(PDPT0)
+	mov dword [0x102000], 0x000087      ; PDT (2M page)
+	mov dword [0x102008], 0x200087      ; PDT (2M page)
+
+	; set pdtr
+	mov eax, 0x100000
+	mov cr3, eax
+
+	;enbale PAE
+	mov eax, cr4
+	bts eax, 5
+	mov cr4, eax
+
+	;enable long mode
+	mov ecx, 0x0C0000080  ; IA32_MSR_EFER
+	rdmsr
+	bts eax, 8            ; EFER.LME
+	wrmsr
+
+	;enable paging
+	mov eax, cr0
+	bts eax, 31
+	mov cr0, eax
+
+	lgdt [_tmp_gdtptr]
+	jmp dword 0x08:startup64
+
+	bits	64
+startup64:
+	cli
+	mov	ax, 0x10
+	mov	ds, ax
+	mov	es, ax
+	mov	fs, ax
+	mov	gs, ax
+	mov	ss, ax
+	mov	rsp, 0x1000
 
 	mov ebp, 0xb8000
 	mov dword [ebp], 0x2700 + 'C'
