@@ -2,12 +2,14 @@
 
 extern void console_early_init();
 extern void trap_init();
+extern void time_init();
 
 void cstartup(void){
 	console_early_init();
 	printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
 	trap_init();
+	time_init();
 	//__asm__("int $0");
-	__asm__("int $1");
+	//__asm__("int $1");
 	for(;;);
 }
