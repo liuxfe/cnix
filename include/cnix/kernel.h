@@ -34,4 +34,6 @@ static inline char inb(short p)
 
 #define memzero(_d,_c)  memset(_d, 0, _c)
 
+extern void printk(char* fmt, ...);
+
 #endif
