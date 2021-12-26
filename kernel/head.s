@@ -123,16 +123,6 @@ idt_ptr:
 	dw 256 * 8 * 2 - 1
 	dq IDTtab
 
-GDTtab:
-	dq 0
-	dq 0x0020980000000000   ; Kernel Code
-	dq 0x0000920000000000   ; Kernel Data
-	dq 0x0020f80000000000   ; User Code
-	dq 0x0000f20000000000   ; User Data
-	times 4096 - 5 * 8 db 0	; Tss
-IDTtab:
-	times 256 * 2	dq 0
-
 extern do_div_zero, do_debug, do_nmi, do_breakpoint, do_overflow
 extern do_bound_range, do_invalid_opcode, do_device_not_invalid
 extern do_double_fault, do_invalid_tss, do_segment_not_exsit
@@ -346,6 +336,16 @@ ret_from_kernel_trap:
 	pop  r15
 	iretq
 
+	section .data
+GDTtab:
+	dq 0
+	dq 0x0020980000000000   ; Kernel Code
+	dq 0x0000920000000000   ; Kernel Data
+	dq 0x0020f80000000000   ; User Code
+	dq 0x0000f20000000000   ; User Data
+	times 4096 - 5 * 8 db 0	; Tss
+IDTtab:
+	times 256 * 2	dq 0
 
 	global PML4E, PDPE0, PDT0, PTE0,IDTtab, GDTtab
 	section .bss

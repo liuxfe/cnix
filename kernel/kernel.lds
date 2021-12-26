@@ -14,14 +14,18 @@ SECTIONS
 		*(.text);
 	}
 
-	. = ALIGN(8);
+	.rodata :
+	{
+		*(.rdata);
+		*(.rodata);
+		*(.rodata.*);
+	}
+
+	. = ALIGN(0x1000);
 	.data :
 	{
 		_data = .;
 		*(.data);
-		*(.rdata);
-		*(.rodata);
-		*(.rodata.*);
 	}
 
 	. = ALIGN(0x180000);
@@ -30,7 +34,7 @@ SECTIONS
 		_bss = .;
 		*(.bss);
 	}
-	. = ALIGN(8);
+	. = ALIGN(32);
 	_end = .;
 
 	. = ALIGN(8192);
