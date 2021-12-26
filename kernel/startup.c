@@ -41,5 +41,9 @@ void cstartup(void)
 	//__asm__("int $1");
 	dump_e820();
 	smp_init();
-	for(;;);
+}
+
+void mpstartup()
+{
+	while(1){}
 }
