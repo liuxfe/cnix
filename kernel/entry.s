@@ -73,6 +73,14 @@ startup32:
 	bt	eax, 9
 	jc	.notbsp
 
+	; clean bss
+	mov	dword edi, _bss - PHYOFF
+	mov	dword ecx, _brk - PHYOFF
+	sub	ecx, edi
+	shr	ecx, 2
+	xor	eax, eax
+	rep stosd
+
 	; tmp paging table at 0x100000
 	mov	dword [0x100800], 0x101007      ; PML4E
 	mov	dword [0x101000], 0x102007      ; PDPE(PDPT0)
@@ -135,7 +143,7 @@ startup64:
 
 gdt_ptr:
 	dw 4096 - 1
-	dq GDTtab
+	dq gdt_tab
 idt_ptr:
 	dw 256 * 8 * 2 - 1
 	dq idt_tab
@@ -335,15 +343,6 @@ ret_from_kernel_trap:
 	pop  r15
 	iretq
 
-	section .data
-GDTtab:
-	dq 0
-	dq 0x0020980000000000   ; Kernel Code
-	dq 0x0000920000000000   ; Kernel Data
-	dq 0x0020f80000000000   ; User Code
-	dq 0x0000f20000000000   ; User Data
-	times 4096 - 5 * 8 db 0	; Tss
-
 	global PML4E, PDPE0, PDT0, PTE0,IDTtab, GDTtab
 	section .bss
 PML4E:	resb	4096
@@ -369,7 +368,7 @@ global trap_align_check, trap_machine_check, trap_SIMD_fault
 extern do_ignore_intr
 global trap_ignore_intr
 
-extern cstartup, mpstartup
+extern cstartup, mpstartup, _bss, _brk
 global startup16, startup32, startup64
 
 extern gdt_tab, idt_tab

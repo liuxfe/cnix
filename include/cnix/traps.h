@@ -1,39 +1,26 @@
 #ifndef _CNIX_TRAPS_H
 #define _CNIX_TRAPS_H
 
-union IDTdesc64 {
-    struct {
-	int64_t low;
-	int64_t high;
-    };
-    struct {
-	int   offset0_15 : 16;
-	int   selector   : 16;
-	int   ist        : 3;
-	int   resvered1  : 5;
-	int   attr       : 8;
-	int   offset16_31: 16;
-	int   offset32_63: 32;
-	int   resvered2  : 32;
-    };
-};
-extern union IDTdesc64 idt_tab[256];
-
-inline void _set_idt64(long nr, long addr, long attr)
-{
-	union IDTdesc64 * idt = idt_tab + nr;
-
-	idt->high = 0x00000000ffff8000;
-	idt->low  = 0x00008E0000080000;
-
-	idt->offset0_15 = addr & 0xffff;
-	idt->offset16_31 = (addr >> 16) & 0xffff;
-	idt->attr = attr;
-}
-
-#define set_trap_gate(nr, addr) _set_idt64(nr, addr, 0x8F)
-#define set_intr_gate(nr, addr) _set_idt64(nr, addr, 0x8E)
-#define set_call_gate(nr, addr) _set_idt64(nr, addr, 0xEF)
+#define T_DIVIDE	0	/* divide error				*/
+#define T_DEBUG		1	/* debug exception			*/
+#define T_NMI		2	/* non-maskable interrupt		*/
+#define T_BRKPT		3	/* breakpoint				*/
+#define T_OFLOW		4	/* overflow				*/
+#define T_BOUND		5	/* bounds check				*/
+#define T_ILLOP		6	/* illegal opcode 			*/
+#define T_DEVICE	7	/* device not available			*/
+#define T_DBLFLT	8	/* double fault				*/
+#define T_COPROC	9	/* reserved (not used since 486)	*/
+#define T_TSS		10	/* invalid task switch segment		*/
+#define T_SEGNP		11	/* segment not present			*/
+#define T_STACK		12	/* stack exception			*/
+#define T_GPFLT		13	/* general protection fault		*/
+#define T_PGFLT		14	/* page fault				*/
+#define T_RES		15	/* reserved				*/
+#define T_FPERR		16	/* floating point error			*/
+#define T_ALIGN		17	/* aligment check			*/
+#define T_MCHK		18	/* machine check			*/
+#define T_SIMDERR	19	/* SIMD floating point error		*/
 
 struct trapregs {
 	unsigned long ds;
