@@ -31,9 +31,9 @@ clean:
 
 ###Depend
 lapic.o: lapic.c ../include/cnix/kernel.h ../include/cnix/asm.h
-main.o: main.c ../include/cnix/kernel.h
 printk.o: printk.c
 smp.o: smp.c ../include/cnix/kernel.h
+startup.o: startup.c ../include/cnix/kernel.h
 time.o: time.c ../include/cnix/kernel.h ../include/cnix/asm.h
 traps.o: traps.c ../include/cnix/kernel.h ../include/cnix/traps.h \
  ../include/cnix/asm.h

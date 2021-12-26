@@ -2,10 +2,6 @@ PHYOFF	EQU	0xFFFF800000000000
 KSTART	EQU	0x1000
 
 	bits	16
-	global	_start
-_start:
-	jmp	(startup16 - $$)
-
 startup16:
 	cli
 	xor	ax, ax
@@ -95,7 +91,6 @@ startup32:
 	jmp	dword 0x08:(startup64 -PHYOFF)
 
 	bits	64
-	extern 	cstartup
 startup64:
 	mov	rax, .go
 	jmp     rax
@@ -114,7 +109,8 @@ startup64:
 
 	lidt	[rel idt_ptr]
 
-	jmp	cstartup
+	call	cstartup
+	jmp	mpstartup
 
 gdt_ptr:
 	dw 4096 - 1
@@ -123,25 +119,7 @@ idt_ptr:
 	dw 256 * 8 * 2 - 1
 	dq IDTtab
 
-extern do_div_zero, do_debug, do_nmi, do_breakpoint, do_overflow
-extern do_bound_range, do_invalid_opcode, do_device_not_invalid
-extern do_double_fault, do_invalid_tss, do_segment_not_exsit
-extern do_stack_segment_fault, do_general_protection, do_page_fault
-extern do_x87_fpu_error, do_align_check, do_machine
-extern do_SMID_fault, do_reserved_trap
-
-global trap_div_zero, trap_debug, trap_nmi, trap_breakpoint, trap_overflow
-global trap_bound_range, trap_invalid_opcode, trap_device_not_invalid
-global trap_double_fault, trap_reserved, trap_invalid_tss
-global trap_segment_not_exsit, trap_stack_segment_fault
-global trap_general_protection, trap_page_fault,trap_x87_fpu_error
-global trap_align_check, trap_machine_check, trap_SIMD_fault
-
-extern do_ignore_intr
-global trap_ignore_intr
-
 	bits 64
-
 trap_div_zero:
 	push r15
 	push r14
@@ -353,3 +331,24 @@ PML4E:	resb	4096
 PDPE0:	resb	4096
 PDT0:	resb	4096
 PTE0:	resb	4096
+
+
+extern do_div_zero, do_debug, do_nmi, do_breakpoint, do_overflow
+extern do_bound_range, do_invalid_opcode, do_device_not_invalid
+extern do_double_fault, do_invalid_tss, do_segment_not_exsit
+extern do_stack_segment_fault, do_general_protection, do_page_fault
+extern do_x87_fpu_error, do_align_check, do_machine
+extern do_SMID_fault, do_reserved_trap
+
+global trap_div_zero, trap_debug, trap_nmi, trap_breakpoint, trap_overflow
+global trap_bound_range, trap_invalid_opcode, trap_device_not_invalid
+global trap_double_fault, trap_reserved, trap_invalid_tss
+global trap_segment_not_exsit, trap_stack_segment_fault
+global trap_general_protection, trap_page_fault,trap_x87_fpu_error
+global trap_align_check, trap_machine_check, trap_SIMD_fault
+
+extern do_ignore_intr
+global trap_ignore_intr
+
+extern cstartup, mpstartup
+global startup16, startup32, startup64
