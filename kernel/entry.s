@@ -13,8 +13,8 @@ startup16:
 	; is bsp
 	mov	ecx, 0x001B
 	rdmsr
-	bt	eax, 9
-	jc	.notbsp
+	bt	eax, 8
+	jnc	.notbsp
 
 	; get memory map
         mov	edi, 0x500;e820map - KOFFSET
@@ -70,8 +70,8 @@ startup32:
 	; is bsp
 	mov	ecx, 0x001B
 	rdmsr
-	bt	eax, 9
-	jc	.notbsp
+	bt	eax, 8
+	jnc	.notbsp
 
 	; clean bss
 	mov	dword edi, _bss - PHYOFF
@@ -131,8 +131,8 @@ startup64:
 	; is bsp
 	mov	ecx, 0x001B
 	rdmsr
-	bt	eax, 9
-	jc	.notbsp
+	bt	eax, 8
+	jnc	.notbsp
 
 	call	cstartup
 
