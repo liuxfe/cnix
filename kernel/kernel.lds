@@ -1,6 +1,6 @@
 OUTPUT_FORMAT("elf64-x86-64","elf64-x86-64","elf64-x86-64")
 OUTPUT_ARCH(i386:x86-64)
-ENTRY(_start)
+ENTRY(startup16)
 
 PHYOFF = 0xFFFF800000000000;
 
@@ -32,6 +32,9 @@ SECTIONS
 	.bss :
 	{
 		_bss = .;
+		*(.bss.pgt);
+		*(.bss.gdt);
+		*(.bss.idt);
 		*(.bss);
 	}
 	. = ALIGN(32);

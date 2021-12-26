@@ -1,9 +1,13 @@
 #include <cnix/kernel.h>
+#include <cnix/traps.h>
 
 extern void console_early_init();
 extern void trap_init();
 extern void time_init();
 extern void smp_init();
+
+char pgt0[40960] __attribute__((section (".bss.pgt"))) = { 0 };
+union IDTdesc64 idt_tab[256] __attribute__((section (".bss.idt"))) = { 0 };
 
 static  char* mem_type_str[] = {
     "",

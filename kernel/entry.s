@@ -10,6 +10,12 @@ startup16:
 	mov	ss, ax
 	mov 	sp, 0x1000
 
+	; is bsp
+	mov	ecx, 0x001B
+	rdmsr
+	bt	eax, 9
+	jc	.notbsp
+
 	; get memory map
         mov	edi, 0x500;e820map - KOFFSET
         xor	ebx, ebx
@@ -28,6 +34,7 @@ startup16:
     .done:
 	mov	dword es:[edi+16], 0
 
+    .notbsp:
 	; enable A20
 	in	al, 0x92
 	or	al, 2
@@ -60,12 +67,20 @@ startup32:
 	mov	ss,  ax
 	mov	esp, 0x1000
 
+	; is bsp
+	mov	ecx, 0x001B
+	rdmsr
+	bt	eax, 9
+	jc	.notbsp
+
 	; tmp paging table at 0x100000
-	mov	dword [0x100000], 0x101007      ; PML4E
 	mov	dword [0x100800], 0x101007      ; PML4E
 	mov	dword [0x101000], 0x102007      ; PDPE(PDPT0)
 	mov	dword [0x102000], 0x000087      ; PDT (2M page)
 	mov	dword [0x102008], 0x200087      ; PDT (2M page)
+
+    .notbsp:
+	mov	dword [0x100000], 0x101007      ; PML4E
 
 	; set pdtr
 	mov	eax, 0x100000
@@ -105,11 +120,17 @@ startup64:
 
 	mov	dword [0x100000], 0      ; PML4E
 
-	lgdt	[rel gdt_ptr]
-
-	lidt	[rel idt_ptr]
+	; is bsp
+	mov	ecx, 0x001B
+	rdmsr
+	bt	eax, 9
+	jc	.notbsp
 
 	call	cstartup
+
+.notbsp:
+	lgdt	[rel gdt_ptr]
+	lidt	[rel idt_ptr]
 	jmp	mpstartup
 
 gdt_ptr:
@@ -117,7 +138,7 @@ gdt_ptr:
 	dq GDTtab
 idt_ptr:
 	dw 256 * 8 * 2 - 1
-	dq IDTtab
+	dq idt_tab
 
 	bits 64
 trap_div_zero:
@@ -322,8 +343,6 @@ GDTtab:
 	dq 0x0020f80000000000   ; User Code
 	dq 0x0000f20000000000   ; User Data
 	times 4096 - 5 * 8 db 0	; Tss
-IDTtab:
-	times 256 * 2	dq 0
 
 	global PML4E, PDPE0, PDT0, PTE0,IDTtab, GDTtab
 	section .bss
@@ -352,3 +371,5 @@ global trap_ignore_intr
 
 extern cstartup, mpstartup
 global startup16, startup32, startup64
+
+extern gdt_tab, idt_tab
