@@ -26,11 +26,15 @@ dep:
 	done
 	mv makefile.tmp Makefile
 
+clean:
+	-rm kernel.bin kernel.dbg kernel.map $(OBJS) *.o
+
 ###Depend
+lapic.o: lapic.c ../include/cnix/kernel.h ../include/cnix/asm.h
 main.o: main.c ../include/cnix/kernel.h
 printk.o: printk.c
 smp.o: smp.c ../include/cnix/kernel.h
-time.o: time.c ../include/cnix/kernel.h ../include/cnix/io.h
+time.o: time.c ../include/cnix/kernel.h ../include/cnix/asm.h
 traps.o: traps.c ../include/cnix/kernel.h ../include/cnix/traps.h \
- ../include/cnix/io.h
-vga.o: vga.c ../include/cnix/kernel.h ../include/cnix/io.h
+ ../include/cnix/asm.h
+vga.o: vga.c ../include/cnix/kernel.h ../include/cnix/asm.h

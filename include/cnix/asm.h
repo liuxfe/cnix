@@ -1,5 +1,5 @@
-#ifndef _CNIX_IO_H
-#define _CNIX_IO_H
+#ifndef _CNIX_ASM_H
+#define _CNIX_ASM_H
 
 static inline char inb(short p)
 {
@@ -90,5 +90,51 @@ static inline char inb(short p)
                 :                       \
                 :"d"(_p),"S"(_b),"c"(_c>>2)\
         );
+
+#define cpuid(_l,_s,_a,_b,_c,_d)        \
+        __asm__ __volatile__ (          \
+                "cpuid \n\t"            \
+                :"=a"(_a),"=b"(_b),     \
+                 "=c"(_c),"=d"(_d)      \
+                :"0"(_l),"2"(_s)        \
+        );
+
+static inline int64_t rdmsr(int index)
+{
+    union {
+        int64_t         v;
+        struct {
+            int32_t l;
+            int32_t h;
+        };
+    } arg;
+
+    __asm__ __volatile__ (
+        "rdmsr \n\t"
+        :"=d"(arg.h), "=a"(arg.l)
+        :"c"(index)
+        :"memory"
+    );
+    return arg.v;
+}
+
+static inline void wrmsr(int32_t index, int64_t value)
+{
+    union  {
+        int64_t         v;
+        struct {
+            int32_t l;
+            int32_t h;
+        };
+    } arg;
+
+    arg.v = value;
+    __asm__ __volatile__ (
+        "wrmsr \n\t"
+        :
+        :"d"(arg.h), "a"(arg.l), "c"(index)
+        :"memory"
+    );
+}
 
 #endif

@@ -91,6 +91,8 @@ static void checkmc(struct mpconf* mc)
 
 int NR_CPUS=0;
 
+extern int32_t* lapicbase;
+
 void smp_init()
 {
 	struct mpproc* proc;
@@ -106,6 +108,7 @@ void smp_init()
 	checkmc(mc);
 	printk("MP Conf : entry count=%d\n", mc->entrycnt);
 	printk("MP Conf : lapicaddr=%x\n", mc->lapicaddr);
+	lapicbase =(int32_t*) __p2v(mc->lapicaddr);
 
 	uint8_t* p = (uint8_t*)mc + sizeof(struct mpconf);
 	for(int i=0;i<mc->entrycnt;i++){

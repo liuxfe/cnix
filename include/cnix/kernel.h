@@ -38,4 +38,7 @@ typedef unsigned long long      uint64_t;
 
 extern void printk(char* fmt, ...);
 
+
+extern int NR_CPUS;
+
 #endif

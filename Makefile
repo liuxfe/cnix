@@ -1,5 +1,5 @@
 QEMU    = /opt/qemu/qemu-system-x86_64 -L /opt/qemu/ \
-          -monitor stdio -display sdl
+          -monitor stdio -display sdl -smp cpus=4
 IMAGE   = cnix-fda.img
 
 
@@ -24,3 +24,7 @@ run: $(IMAGE)
 dbg: $(IMAGE)
 	$(QEMU) -fda $(IMAGE) -S -gdb tcp::4000 &
 	gdb -ex "file kernel/kernel.dbg" -ex "tar remote localhost:4000"
+
+clean:
+	cd kernel; make clean
+	-rm $(IMAGE)

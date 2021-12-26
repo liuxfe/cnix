@@ -1,5 +1,5 @@
 #include <cnix/kernel.h>
-#include <cnix/io.h>
+#include <cnix/asm.h>
 
 #define isleap(y)       ( y%400 == 0 || ( y%4 == 0 && y%100 != 0 ) )
 #define bcd2int(_v)     (_v = (_v & 0x0f) + (_v >> 4) * 10)
