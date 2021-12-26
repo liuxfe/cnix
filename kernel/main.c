@@ -3,6 +3,7 @@
 extern void console_early_init();
 extern void trap_init();
 extern void time_init();
+extern void smp_init();
 
 static  char* mem_type_str[] = {
     "",
@@ -39,5 +40,6 @@ void cstartup(void)
 	//__asm__("int $0");
 	//__asm__("int $1");
 	dump_e820();
+	smp_init();
 	for(;;);
 }

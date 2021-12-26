@@ -10,6 +10,14 @@ typedef unsigned int            uint32_t;
 typedef signed long long        int64_t;
 typedef unsigned long long      uint64_t;
 
+// stdbool
+#define bool	_Bool
+#define true	1
+#define false	0
+
+// NULL
+#define NULL	((void*)0)
+
 #define PHYOFF		0xFFFF800000000000
 
 #define __p2v(a)	((a) + PHYOFF)
