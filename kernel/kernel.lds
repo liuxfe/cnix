@@ -28,13 +28,16 @@ SECTIONS
 		*(.data);
 	}
 
-	. = ALIGN(0x180000);
+	. = ALIGN(0x100000);
 	.bss :
 	{
 		_bss = .;
-		*(.bss.pgt);
-		*(.bss.gdt);
-		*(.bss.idt);
+		pml4e = .;   . += 4096;
+		pdpe0 = .;   . += 4096;
+		pde0  = .;   . += 4096;
+		pte0  = .;   . += 4096;
+		gdt_tab = .; . += 8192;
+		idt_tab = .; . += 8192;
 		*(.bss);
 	}
 	. = ALIGN(32);

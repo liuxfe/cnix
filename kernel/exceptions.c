@@ -89,6 +89,9 @@ void do_general_protection(long rsp, long error_code)
 
 void do_page_fault(long rsp, long error_code)
 {
+	uint64_t l;
+	__asm__("movq %%cr2, %%rax" :"=a"(l));
+	printk("addr=%#18x",l);
 	_die(rsp, error_code, "page fault");
 }
 

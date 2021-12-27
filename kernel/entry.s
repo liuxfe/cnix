@@ -124,29 +124,26 @@ startup64:
 	mov	fs, ax
 	mov	gs, ax
 	mov	ss, ax
-	mov	rsp, 0x1000 + PHYOFF
 
 	mov	dword [0x100000], 0      ; PML4E
 
-	; is bsp
-	mov	ecx, 0x001B
-	rdmsr
-	bt	eax, 8
-	jnc	.notbsp
+	mov	rdi, -1
+.spin:
+	xchg	rdi, [rel boot_cpu_id]
+	cmp	rdi, -1
+	je	.spin
 
-	call	cstartup
+	add	qword [rel mem_start], 8192
+	mov	rsp, [rel mem_start]
+	mov	rsi, rsp
 
-.notbsp:
-	lgdt	[rel gdt_ptr]
-	lidt	[rel idt_ptr]
-	jmp	mpstartup
+	mov	rax, rdi
+	inc	rax
+	mov	qword [rel boot_cpu_id], rax ; release lock
 
-gdt_ptr:
-	dw 4096 - 1
-	dq gdt_tab
-idt_ptr:
-	dw 256 * 8 * 2 - 1
-	dq idt_tab
+	jmp	cstartup
+
+
 
 	bits 64
 trap_div_zero:
@@ -343,14 +340,6 @@ ret_from_kernel_trap:
 	pop  r15
 	iretq
 
-	global PML4E, PDPE0, PDT0, PTE0,IDTtab, GDTtab
-	section .bss
-PML4E:	resb	4096
-PDPE0:	resb	4096
-PDT0:	resb	4096
-PTE0:	resb	4096
-
-
 extern do_div_zero, do_debug, do_nmi, do_breakpoint, do_overflow
 extern do_bound_range, do_invalid_opcode, do_device_not_invalid
 extern do_double_fault, do_invalid_tss, do_segment_not_exsit
@@ -368,7 +357,7 @@ global trap_align_check, trap_machine_check, trap_SIMD_fault
 extern do_ignore_intr
 global trap_ignore_intr
 
-extern cstartup, mpstartup, _bss, _brk
+extern cstartup
 global startup16, startup32, startup64
 
-extern gdt_tab, idt_tab
+extern gdt_tab, idt_tab, _bss, _brk, boot_cpu_id, mem_start

@@ -6,10 +6,6 @@ extern void console_early_init();
 extern void time_init();
 extern void smp_init();
 
-char pgt0[40960] __attribute__((section (".bss.pgt"))) = { 0 };
-union IDTdesc64 idt_tab[256] __attribute__((section (".bss.idt"))) = { 0 };
-struct GDTtable gdt_tab __attribute__((section (".bss.gdt"))) = { 0 };
-
 static  char* mem_type_str[] = {
     "",
     "RAM",
@@ -117,22 +113,76 @@ static void setup_idt()
 			set_intr_gate(i, (long)trap_ignore_intr);
 }
 
-void cstartup()
+extern struct{
+	uint64_t entry[4096/8];
+} pml4e, pdpe0, pde0, pte0;
+extern long _data, _brk;
+
+static void setup_pgt()
 {
-	setup_gdt();
-	setup_idt();
+	int i;
+	uint64_t p;
 
-	console_early_init();
-	printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
+	pte0.entry[0] = 0x7 ;//| (1ULL<<63);
+	for(i=1,p=0x1000; p<__v2p((uint64_t)&_data); p+=0x1000)
+		pte0.entry[i++] = p + 0x07;
+	for(p=__v2p((uint64_t)&_data); p<0x200000; p+=0x1000)
+		pte0.entry[i++] = (p + 0x07) ;//| (1ULL <<63);
 
-	time_init();
-	//__asm__("int $1");
-	dump_e820();
-	smp_init();
+	pde0.entry[0] = __v2p((uint64_t)&pte0) + 0x07;
+	for(i=1,p=0x200000;i<4096/8;i++,p+=0x200000)
+		pde0.entry[i] = p + 0x87;
+
+	pdpe0.entry[0] = __v2p((uint64_t)&pde0) + 0x07;
+	for(i=1;i<8;i++)
+		pdpe0.entry[i] = i * 1024 * 1024 * 1024ULL + 0x87;
 }
 
-void mpstartup()
+long boot_cpu_id = 0;
+long mem_start = (long)&_brk;
+
+struct __attribute__((packed)){
+	uint16_t limit;
+	uint64_t base;
+} __gdtr = {
+	8192 -1, (uint64_t)&gdt_tab
+}, __idtr = {
+	8192 -1, (uint64_t)&idt_tab
+};
+
+static inline void _lgdt()
 {
-	__asm__("int $0");
+	__asm__ __volatile__("lgdt __gdtr(%%rip)"::);
+	//__asm__ __volatile__("movw %%ax, %%ds"::"a"(0x10));
+}
+
+static inline void _lidt()
+{
+	__asm__ __volatile__("lidt __idtr(%%rip)"::);
+}
+
+void cstartup(long cpu_id, long rsp)
+{
+	if(!cpu_id)
+		setup_pgt();
+
+	if(!cpu_id)
+		setup_gdt();
+	_lgdt();
+
+	if(!cpu_id)
+		setup_idt();
+	_lidt();
+
+	if(!cpu_id){
+		console_early_init();
+		time_init();
+		smp_init();
+		dump_e820();
+		printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
+		printk("cpu_id=%d, rsp=%#18x", cpu_id, rsp);
+
+		//__asm__("int $1");
+	}
 	while(1){}
 }
