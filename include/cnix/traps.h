@@ -22,6 +22,8 @@
 #define T_MCHK		18	/* machine check			*/
 #define T_SIMDERR	19	/* SIMD floating point error		*/
 
+#define T_IOAPIC	0x20
+#  define T_CLOCK	2
 struct trapregs {
 	unsigned long ds;
 	unsigned long es;

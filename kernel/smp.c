@@ -92,11 +92,12 @@ static void checkmc(struct mpconf* mc)
 int NR_CPUS=0;
 
 extern int32_t* lapicbase;
+extern void* ioapic;
 
 void smp_init()
 {
 	struct mpproc* proc;
-	struct mpioapic* ioapic;
+	struct mpioapic* _ioapic;
 
 	struct mp* mp= mpsearch();
 	if(!mp){
@@ -122,8 +123,9 @@ void smp_init()
 		    case T_BUS:
 			p+=8; continue;
 		    case T_IOAPIC:
-			ioapic=(struct mpioapic*)p;
-			printk("IOAPIC id:%d, addr: %x\n", ioapic->apicno, ioapic->addr);
+			_ioapic=(struct mpioapic*)p;
+			printk("IOAPIC id:%d, addr: %x\n", _ioapic->apicno, _ioapic->addr);
+			ioapic = (void*)__p2v(_ioapic->addr);
 			p+=sizeof(struct mpioapic);
 			continue;
 		    case T_IOINTR:

@@ -1,6 +1,10 @@
 #ifndef _CNIX_ASM_H
 #define _CNIX_ASM_H
 
+#define cli()           __asm__ ("cli \n\t");
+#define sti()           __asm__ ("sti \n\t");
+#define hlt()           __asm__ ("hlt \n\t");
+
 static inline char inb(short p)
 {
         char r;

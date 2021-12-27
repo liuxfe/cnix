@@ -92,7 +92,7 @@ void lapic_init()
   	//lapic_set_timer(0x30000000, lapic_timer_boot_traphandle);
 }
 
-void APIC_eoi()
+void lapic_eoi()
 {
 	lapic_write(LAPIC_EOI,0);
 }

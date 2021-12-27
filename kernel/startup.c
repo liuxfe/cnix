@@ -1,6 +1,7 @@
 #include <cnix/kernel.h>
 #include <cnix/asm.h>
 #include <cnix/desc.h>
+#include <cnix/traps.h>
 
 extern void console_early_init();
 extern void time_init();
@@ -161,6 +162,35 @@ static inline void _lidt()
 	__asm__ __volatile__("lidt __idtr(%%rip)"::);
 }
 
+#define PIC_CLOCK       32
+#define HZ              60
+
+extern void ioapic_eoi(int irq);
+extern void lapic_eoi();
+unsigned long startup_click = 0;
+void do_clock_intr(struct trapregs* regs)
+{
+    ++startup_click;
+    //do_sched();
+    printk("\n----------A---------\n");
+    //ioapic_eoi(T_CLOCK);
+    lapic_eoi();
+}
+
+extern void ioapic_enable(int irq);
+#define LATCH           (1193180/HZ)
+static void clock_init()
+{
+    outb(0x43, 0x36);
+    outb(0x40, LATCH && 0xff);
+    outb(0x40, LATCH >> 8);
+    // enable intr
+    //outb(0x21, inb(0x21) & ~1);
+    set_intr_gate(T_IOAPIC + T_CLOCK, (long)trap_clock_intr);
+    ioapic_enable(T_CLOCK);
+}
+
+extern void ioapic_init();
 void cstartup(long cpu_id, long rsp)
 {
 	if(!cpu_id)
@@ -179,6 +209,9 @@ void cstartup(long cpu_id, long rsp)
 		time_init();
 		smp_init();
 		dump_e820();
+		ioapic_init();
+		clock_init();
+		sti();
 		printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
 		printk("cpu_id=%d, rsp=%#18x", cpu_id, rsp);
 

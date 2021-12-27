@@ -290,6 +290,10 @@ trap_ignore_intr:
 	lea  r15, [rel do_ignore_intr]
 	jmp  intr_comm
 
+trap_clock_intr:
+	push r15
+	lea  r15, [rel do_clock_intr]
+	jmp  intr_comm
 intr_comm:
 	push r14
 	push r13
@@ -354,8 +358,8 @@ global trap_segment_not_exsit, trap_stack_segment_fault
 global trap_general_protection, trap_page_fault,trap_x87_fpu_error
 global trap_align_check, trap_machine_check, trap_SIMD_fault
 
-extern do_ignore_intr
-global trap_ignore_intr
+extern do_ignore_intr, do_clock_intr
+global trap_ignore_intr, trap_clock_intr
 
 extern cstartup
 global startup16, startup32, startup64
