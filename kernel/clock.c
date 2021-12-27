@@ -23,7 +23,7 @@ void do_clock_intr(struct trapregs* regs)
 {
     ++startup_click;
     //do_sched();
-    printk("A");
+    //printk("A");
     //ioapic_eoi(T_CLOCK);
     lapic_eoi();
 }

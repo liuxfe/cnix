@@ -3,38 +3,6 @@
 #include <cnix/desc.h>
 #include <cnix/traps.h>
 
-extern void console_early_init();
-extern void time_init();
-extern void smp_init();
-extern void ioapic_init();
-extern void clock_init();
-
-static  char* mem_type_str[] = {
-    "",
-    "RAM",
-    "ROM or Reserved",
-    "ACPI Reclaim Memory",
-    "ACPI NVS Memory",
-    "Undefine"
-};
-
-struct E820_struct {
-    uint64_t  addr;
-    uint64_t  len;
-    int32_t   type;
-} __attribute__((packed));
-
-void dump_e820()
-{
-	struct E820_struct *E820 = (struct E820_struct*)__p2v(0x500);// e820map;
-	while(E820->type) {
-		printk("  %#018x-%#018x, %s\n", E820->addr,
-			E820->addr + E820->len,
-			mem_type_str[E820->type]);
-		E820++;
-	}
-}
-
 extern void trap_div_zero();
 extern void trap_debug();
 extern void trap_nmi();
@@ -163,29 +131,42 @@ static inline void _lidt()
 	__asm__ __volatile__("lidt __idtr(%%rip)"::);
 }
 
+extern void console_early_init();
+extern void time_init();
+extern void smp_init();
+extern void ioapic_init();
+extern void clock_init();
+extern void mem_init();
+
+extern long alloc_page();
+extern long alloc_2page();
+
 void cstartup(long cpu_id, long rsp)
 {
-	if(!cpu_id)
+	if(!cpu_id){
+		console_early_init();
 		setup_pgt();
-
-	if(!cpu_id)
 		setup_gdt();
-	_lgdt();
-
-	if(!cpu_id)
 		setup_idt();
+	}
+	_lgdt();
 	_lidt();
 
 	if(!cpu_id){
-		console_early_init();
 		time_init();
 		smp_init();
-		dump_e820();
 		ioapic_init();
 		clock_init();
+		mem_init();
 		sti();
 		printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
 		printk("cpu_id=%d, rsp=%#18x", cpu_id, rsp);
+
+		printk("%x; %x;\n", alloc_page(), alloc_page());
+		printk("%x; %x;\n", alloc_2page(), alloc_page());
+		printk("%x; %x;\n", alloc_2page(), alloc_2page());
+		printk("%x; %x;\n", alloc_page(), alloc_2page());
+		printk("%x; %x;\n", alloc_page(), alloc_page());
 
 		//__asm__("int $1");
 	}
