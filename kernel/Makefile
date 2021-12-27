@@ -30,12 +30,15 @@ clean:
 	-rm kernel.bin kernel.dbg kernel.map $(OBJS) *.o
 
 ###Depend
+clock.o: clock.c ../include/cnix/kernel.h ../include/cnix/traps.h \
+ ../include/cnix/asm.h ../include/cnix/desc.h
 exceptions.o: exceptions.c ../include/cnix/kernel.h \
  ../include/cnix/traps.h ../include/cnix/asm.h
+ioapic.o: ioapic.c ../include/cnix/kernel.h ../include/cnix/asm.h
 lapic.o: lapic.c ../include/cnix/kernel.h ../include/cnix/asm.h
 printk.o: printk.c
 smp.o: smp.c ../include/cnix/kernel.h
 startup.o: startup.c ../include/cnix/kernel.h ../include/cnix/asm.h \
- ../include/cnix/desc.h
+ ../include/cnix/desc.h ../include/cnix/traps.h
 time.o: time.c ../include/cnix/kernel.h ../include/cnix/asm.h
 vga.o: vga.c ../include/cnix/kernel.h ../include/cnix/asm.h

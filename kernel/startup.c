@@ -6,6 +6,8 @@
 extern void console_early_init();
 extern void time_init();
 extern void smp_init();
+extern void ioapic_init();
+extern void clock_init();
 
 static  char* mem_type_str[] = {
     "",
@@ -52,7 +54,6 @@ extern void trap_x87_fpu_error();
 extern void trap_align_check();
 extern void trap_machine_check();
 extern void trap_SIMD_fault();
-extern void trap_clock_intr();
 extern void trap_ignore_intr();
 
 static inline void i8259_init()
@@ -162,35 +163,6 @@ static inline void _lidt()
 	__asm__ __volatile__("lidt __idtr(%%rip)"::);
 }
 
-#define PIC_CLOCK       32
-#define HZ              60
-
-extern void ioapic_eoi(int irq);
-extern void lapic_eoi();
-unsigned long startup_click = 0;
-void do_clock_intr(struct trapregs* regs)
-{
-    ++startup_click;
-    //do_sched();
-    printk("\n----------A---------\n");
-    //ioapic_eoi(T_CLOCK);
-    lapic_eoi();
-}
-
-extern void ioapic_enable(int irq);
-#define LATCH           (1193180/HZ)
-static void clock_init()
-{
-    outb(0x43, 0x36);
-    outb(0x40, LATCH && 0xff);
-    outb(0x40, LATCH >> 8);
-    // enable intr
-    //outb(0x21, inb(0x21) & ~1);
-    set_intr_gate(T_IOAPIC + T_CLOCK, (long)trap_clock_intr);
-    ioapic_enable(T_CLOCK);
-}
-
-extern void ioapic_init();
 void cstartup(long cpu_id, long rsp)
 {
 	if(!cpu_id)
