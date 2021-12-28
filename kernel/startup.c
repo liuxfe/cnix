@@ -137,9 +137,7 @@ extern void smp_init();
 extern void ioapic_init();
 extern void clock_init();
 extern void mem_init();
-
-extern long alloc_page();
-extern long alloc_2page();
+extern void sched_init(int how);
 
 void cstartup(long cpu_id, long rsp)
 {
@@ -156,17 +154,11 @@ void cstartup(long cpu_id, long rsp)
 		time_init();
 		smp_init();
 		ioapic_init();
-		clock_init();
+
 		mem_init();
 		sti();
 		printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
-		printk("cpu_id=%d, rsp=%#18x", cpu_id, rsp);
-
-		printk("%x; %x;\n", alloc_page(), alloc_page());
-		printk("%x; %x;\n", alloc_2page(), alloc_page());
-		printk("%x; %x;\n", alloc_2page(), alloc_2page());
-		printk("%x; %x;\n", alloc_page(), alloc_2page());
-		printk("%x; %x;\n", alloc_page(), alloc_page());
+		sched_init(1);
 
 		//__asm__("int $1");
 	}

@@ -362,6 +362,6 @@ extern do_ignore_intr, do_clock_intr
 global trap_ignore_intr, trap_clock_intr
 
 extern cstartup
-global startup16, startup32, startup64
+global startup16, startup32, startup64, ret_from_kernel_trap
 
 extern gdt_tab, idt_tab, _bss, _brk, boot_cpu_id, mem_start

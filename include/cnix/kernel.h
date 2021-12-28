@@ -41,6 +41,9 @@ extern void ioapic_enable(int irq);
 extern void ioapic_eoi(int irq);
 extern void lapic_eoi();
 
+extern long alloc_page();
+extern long alloc_2page();
+
 extern int NR_CPUS;
 
 #endif

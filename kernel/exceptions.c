@@ -20,7 +20,7 @@ static void _die(long rsp, long err_code, char* info)
 	printk("r15=%0#18x,err=%0#18x\n", regs->r15, err_code);
 	printk("ds =%0#18x,es =%0#18x\n", regs->ds, regs->es);
 
-	//while(1) {}
+	while(1) {}
 }
 
 void do_div_zero(long rsp, long error_code)

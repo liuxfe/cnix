@@ -28,3 +28,5 @@ dbg: $(IMAGE)
 clean:
 	cd kernel; make clean
 	-rm $(IMAGE)
+all:
+	make clean; make dep; make run

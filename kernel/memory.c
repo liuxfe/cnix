@@ -87,7 +87,7 @@ long alloc_page()
 		return (mem_zone[i].free - 4096);
 	}
 	printk("OOM");
-	return NULL;
+	return 0;
 }
 
 long alloc_2page()
@@ -101,5 +101,5 @@ long alloc_2page()
 		return (mem_zone[i].free - 8192);
 	}
 	printk("OOM");
-	return NULL;
+	return 0;
 }
