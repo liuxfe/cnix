@@ -118,16 +118,16 @@ void setup_smp()
 	for(int i=0;i<__mc->entrycnt;i++){
 		switch(*p){
 		    case T_PROC:
-		    	proc = (struct mpproc*)p;
-		    	printk("CPU apicid: %d\n", proc->apicid);
-		    	NR_CPUS++;
-		    	p+=sizeof(struct mpproc);
-		    	continue;
+			proc = (struct mpproc*)p;
+			//printk("CPU apicid: %d\n", proc->apicid);
+			NR_CPUS++;
+			p+=sizeof(struct mpproc);
+			continue;
 		    case T_BUS:
 			p+=8; continue;
 		    case T_IOAPIC:
 			_ioapic=(struct mpioapic*)p;
-			printk("IOAPIC id:%d, addr: %x\n", _ioapic->apicno, _ioapic->addr);
+			//printk("IOAPIC id:%d, addr: %x\n", _ioapic->apicno, _ioapic->addr);
 			ioapic = (void*)__p2v(_ioapic->addr);
 			p+=sizeof(struct mpioapic);
 			continue;
@@ -139,5 +139,5 @@ void setup_smp()
 			printk("Unkown type");break;
 		}
 	}
-	printk("%d CPUS found\n", NR_CPUS);
+	//printk("%d CPUS found\n", NR_CPUS);
 }

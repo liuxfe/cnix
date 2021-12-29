@@ -166,7 +166,6 @@ void loop2()
 	}
 }
 
-extern void clock_init();
 void sched_init(int how)
 {
 	th1 = create_thread((long)loop1);
@@ -188,6 +187,6 @@ void do_sched()
 
 void do_lvt_timer()
 {
-	printk("A");
+	//printk("D");
 	lapic_eoi();
 }

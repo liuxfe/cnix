@@ -23,7 +23,12 @@ static inline void spin_lock(spinlock_t* sl)
 
 static inline void spin_unlock(spinlock_t* sl)
 {
-	sl->lock = SPIN_UNLOCK;
+	__asm__ __volatile__(
+		"xchgq %%rax, %0	\n\t"
+		:"=m"(sl->lock)
+		:"a"(SPIN_UNLOCK)
+		:"memory"
+	);
 }
 
 #endif

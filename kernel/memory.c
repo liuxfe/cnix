@@ -9,6 +9,7 @@ struct E820_struct {
     int32_t   type;
 } __attribute__((packed)) ;
 
+#if 0
 static char* mem_type_str[] = {
     "",
     "RAM",
@@ -28,6 +29,7 @@ static void dump_e820()
 		E820++;
 	}
 }
+#endif
 
 #define NR_ZONE_MAX	32
 struct mem_zone{
@@ -40,7 +42,7 @@ extern long _data, _brk;
 
 void mem_init()
 {
-	dump_e820();
+	//dump_e820();
 	long _mem_start = (long)&_brk + 8192*NR_CPUS - PHYOFF;
 
 	struct E820_struct *E820 = (struct E820_struct*)__p2v(0x500);
