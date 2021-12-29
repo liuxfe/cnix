@@ -17,20 +17,20 @@ startup16:
 	jnc	.notbsp
 
 	; get memory map
-        mov	edi, 0x500;e820map - KOFFSET
-        xor	ebx, ebx
+	mov	edi, 0x500
+	xor	ebx, ebx
     .next:
-        mov	eax, 0xE820
-        mov	ecx, 20
-        mov	edx, 0x534D4150
-        int	15h
-        jc	.faild
-        cmp	ebx, 0
-        je	.done
-        add	edi, 20
-        jmp	.next
+	mov	eax, 0xE820
+	mov	ecx, 20
+	mov	edx, 0x534D4150
+	int	15h
+	jc	.faild
+	cmp	ebx, 0
+	je	.done
+	add	edi, 20
+	jmp	.next
     .faild:
-        jmp	$
+	jmp	$
     .done:
 	mov	dword es:[edi+16], 0
 

@@ -136,8 +136,8 @@ extern void setup_smp();
 extern void setup_ioapic();
 extern void clock_init();
 extern void mem_init();
-extern void sched_init(int how);
-extern void lapic_init(int cpu_id);
+extern void lapic_init(long cpu_id);
+extern void sched_init(long cpu_id);
 
 void cstartup(long cpu_id, long rsp)
 {
@@ -161,7 +161,7 @@ void cstartup(long cpu_id, long rsp)
 		//__asm__("int $1");
 	}
 	lapic_init(cpu_id);
-	sti();
+	//sti();
 	printk("CPU%d started\n", cpu_id);
 	sched_init(cpu_id);
 

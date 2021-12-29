@@ -2,6 +2,7 @@
 #include <cnix/asm.h>
 #include <cnix/desc.h>
 #include <cnix/traps.h>
+#include <cnix/spinlock.h>
 
 struct E820_struct {
     uint64_t  addr;
@@ -80,12 +81,16 @@ void mem_init()
 		printk("  %0#18x-%0#18x\n", mem_zone[i].start, mem_zone[i].end);
 }
 
+static spinlock_t mem_alloc_lock = { SPIN_UNLOCK };
+
 long alloc_page()
 {
+	spin_lock(&mem_alloc_lock);
 	for(int i=0; i<NR_ZONE; i++){
 		if(mem_zone[i].free>=mem_zone[i].end)
 			continue;
 		mem_zone[i].free += 4096;
+		spin_unlock(&mem_alloc_lock);
 		return (mem_zone[i].free - 4096);
 	}
 	printk("OOM");
@@ -94,12 +99,14 @@ long alloc_page()
 
 long alloc_2page()
 {
+	spin_lock(&mem_alloc_lock);
 	for(int i=0; i<NR_ZONE; i++){
 		if(mem_zone[i].free & (8192ULL-1))
 			mem_zone[i].free += 4096;
 		if(mem_zone[i].free>=mem_zone[i].end)
 			continue;
 		mem_zone[i].free += 8192;
+		spin_unlock(&mem_alloc_lock);
 		return (mem_zone[i].free - 8192);
 	}
 	printk("OOM");

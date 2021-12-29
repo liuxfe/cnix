@@ -1,24 +1,22 @@
 #include <cnix/kernel.h>
 #include <cnix/traps.h>
 #include <cnix/asm.h>
+#include <cnix/sched.h>
 
 static void _die(long rsp, long err_code, char* info)
 {
-	struct trapregs* regs = (struct trapregs*)rsp;
+	struct trapregs* r = (struct trapregs*)rsp;
 
-	printk("------- %s ---------\n", info);
-	printk("ss=%0#18x,rsp=%0#18x\n", regs->ss, regs->rsp);
-	printk("rflags=%0#18x\n", regs->rflags);
-	printk("cs =%0#18x,rip=%0#18x\n", regs->cs, regs->rip);
-	printk("rax=%0#18x,rbx=%0#18x\n", regs->rax, regs->rbx);
-	printk("rcx=%0#18x,rdx=%0#18x\n", regs->rcx, regs->rdx);
-	printk("rdi=%0#18x,rsi=%0#18x\n", regs->rdi, regs->rsi);
-	printk("rbp=%0#18x,r8 =%0#18x\n", regs->rbp, regs->r8);
-	printk("r9 =%0#18x,r10=%0#18x\n", regs->r9, regs->r10);
-	printk("r11=%0#18x,r12=%0#18x\n", regs->r11, regs->r12);
-	printk("r13=%0#18x,r14=%0#18x\n", regs->r13, regs->r14);
-	printk("r15=%0#18x,err=%0#18x\n", regs->r15, err_code);
-	printk("ds =%0#18x,es =%0#18x\n", regs->ds, regs->es);
+	printk("\nCPU %d: %s , err=%0#18x\n", me->cpu_id, info, err_code);
+	printk("ss=%0#18x,rsp=%0#18x\n", r->ss, r->rsp);
+	printk("rflags=%0#18x\n", r->rflags);
+	printk("cs =%0#18x,rip=%0#18x\n", r->cs, r->rip);
+	printk("rax=%0#18x,rbx=%0#18x,rcx=%0#18x\n", r->rax, r->rbx, r->rcx);
+	printk("rdx=%0#18x,rdi=%0#18x,rsi=%0#18x\n", r->rdx, r->rdi, r->rsi);
+	printk("rbp=%0#18x,r8 =%0#18x,r9 =%0#18x\n", r->rbp, r->r8, r->r9);
+	printk("r10=%0#18x,r11=%0#18x,r12=%0#18x\n", r->r10, r->r11, r->r12);
+	printk("r13=%0#18x,r14=%0#18x,r15=%0#18x\n", r->r13, r->r14, r->r15);
+	printk("ds =%0#18x,es =%0#18x\n", r->ds, r->es);
 
 	while(1) {}
 }
@@ -27,6 +25,7 @@ void do_div_zero(long rsp, long error_code)
 {
 	_die(rsp, error_code, "div zero");
 }
+
 void do_debug(long rsp, long error_code)
 {
 	_die(rsp, error_code, "debug");
@@ -119,7 +118,6 @@ void do_reserved_trap(long rsp, long error_code)
 {
 	_die(rsp, error_code, "reserved 9,15,20~31,IRQ0-31");
 }
-
 
 void do_default_ignore()
 {

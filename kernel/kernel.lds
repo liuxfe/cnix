@@ -36,8 +36,8 @@ SECTIONS
 		pdpe0 = .;   . += 4096;
 		pde0  = .;   . += 4096;
 		pte0  = .;   . += 4096;
-		gdt_tab = .; . += 8192;
-		idt_tab = .; . += 8192;
+		gdt_tab = .; . += 4096;
+		idt_tab = .; . += 4096;
 		*(.bss);
 	}
 	. = ALIGN(32);

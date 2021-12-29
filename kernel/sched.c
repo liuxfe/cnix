@@ -5,13 +5,15 @@
 #include <cnix/traps.h>
 #include <cnix/desc.h>
 
-union thread *th1, *th2;
+extern void int_lvt_timer();
+
+struct cpu_struct cpu_struct[NR_CPU_MAX] = { 0 };
 
 #define rdcoms(_r,_i) 	{ outb(0x70, 0x80| _i); _r = inb(0x71); }
 #define COMS_SEC	0x00
 #define HZ 60
 
-uint64_t get_tsc_diff()
+static uint64_t get_tsc_diff()
 {
 	volatile long s1, s2;
 	uint64_t tsc1, tsc2;
@@ -32,9 +34,6 @@ uint64_t get_tsc_diff()
 
 	return tsc2 - tsc1;
 }
-
-extern void int_lvt_timer();
-
 
 // Save TS, XMM, YMM ?
 struct ctx_struct{
@@ -76,42 +75,84 @@ static union thread* create_thread(long func, long arg)
 	}
 	th = (union thread*)__p2v(p);
 	th->stack = build_ctx(&(th->canarry2), func, arg);
+	th->next = NULL;
 	return th;
 }
-
-extern void __jmp_ctx(long unused, long p);
-extern void __switch_ctx(long *from, long to);
 
 void putc_loop(long c)
 {
 	while(1){
-		sti();
 		printk("%c", c);
-		for(volatile int i=0; i<0x2000000;i++);
+		for(volatile int i=0; i<0x1000000;i++);
 	}
 }
 
-void sched_init(int how)
+static union thread* init_idle_thread(long cpu_id)
 {
-	th1 = create_thread((long)putc_loop, 'F');
-	th2 = create_thread((long)putc_loop, 'S');
+	union thread* th = me;
+
+	th->cpu_id = cpu_id;
+	th->stack = (long)&me->canarry2;
+	return th;
+}
+
+void sched_init(long cpu_id)
+{
+	union thread* th;
+
+	if(cpu_id >= NR_CPU_MAX){
+		cli();while(1){}
+	}
+
+	struct cpu_struct* cpu = cpu_struct + cpu_id;
+	cpu->idle = init_idle_thread(cpu_id);
+	cpu->ready = NULL;
+
+	//
+	th = create_thread((long)putc_loop, 'A' + cpu_id);
+	th->cpu_id = cpu_id;
+	//th->next = cpu->ready;
+	//cpu->ready = th;
+	cpu->th1=th;
+
+	th = create_thread((long)putc_loop, 'H' + cpu_id);
+	//th->next = cpu->ready;
+	//cpu->ready = th;
+	th->cpu_id = cpu_id;
+	cpu->th2=th;
 
 	// Setup Local Timer.
 	set_intr_gate(T_LVT_TIMER, (long)int_lvt_timer);
 	lapic_write(LAPIC_LVT_TIMER, (1<<17)|T_LVT_TIMER);
 	lapic_write(LAPIC_TICR, get_tsc_diff()/HZ);
-
-	//__jmp_ctx(0, th1->stack);
+	sti();
 }
 
+extern void __switch_ctx(long *from, long to);
 void do_sched()
 {
-	union thread *to = (me == th1)? th2:th1;
-	__switch_ctx(&(me->stack),to->stack);
+	union thread *tmp;
+	struct cpu_struct* cpu = cpu_struct+ me->cpu_id;
+
+	//union thread* to;=cpu->idle;
+/*
+	if(cpu->ready){
+		to = cpu->ready;
+		cpu->ready = to->next;
+
+		tmp = cpu->ready;
+		while(tmp->next) tmp = tmp->next;
+		tmp->next = to;
+		to->next = NULL;
+	}
+	*/
+	union thread*  to = (me == cpu->th1) ? cpu->th2: cpu->th1;
+	//if(to != me)
+		__switch_ctx(&me->stack,to->stack);
 }
 
 void do_lvt_timer()
 {
 	lapic_eoi();
-	//printk("D");
+	do_sched();
 }

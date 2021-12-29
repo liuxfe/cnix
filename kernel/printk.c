@@ -114,7 +114,6 @@ void printk(char *fmt, ...)
 	    repeat1:
 		fmt++;
 		switch( *fmt ) {
-
 		    case '-':
 			flag |= F_LEFT;
 			goto repeat1;

@@ -33,12 +33,13 @@ clean:
 clock.o: clock.c ../include/cnix/kernel.h ../include/cnix/traps.h \
  ../include/cnix/asm.h ../include/cnix/desc.h ../include/cnix/lapic.h
 exceptions.o: exceptions.c ../include/cnix/kernel.h \
- ../include/cnix/traps.h ../include/cnix/asm.h
+ ../include/cnix/traps.h ../include/cnix/asm.h ../include/cnix/sched.h
 ioapic.o: ioapic.c ../include/cnix/kernel.h ../include/cnix/asm.h
 lapic.o: lapic.c ../include/cnix/kernel.h ../include/cnix/asm.h \
  ../include/cnix/lapic.h
 memory.o: memory.c ../include/cnix/kernel.h ../include/cnix/asm.h \
- ../include/cnix/desc.h ../include/cnix/traps.h
+ ../include/cnix/desc.h ../include/cnix/traps.h \
+ ../include/cnix/spinlock.h
 printk.o: printk.c ../include/cnix/kernel.h ../include/cnix/spinlock.h
 sched.o: sched.c ../include/cnix/kernel.h ../include/cnix/sched.h \
  ../include/cnix/asm.h ../include/cnix/lapic.h ../include/cnix/traps.h \

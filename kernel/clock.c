@@ -20,13 +20,8 @@ void clock_init()
 	ioapic_enable(T_CLOCK);
 }
 
-extern void do_sched();
 void do_clock(struct trapregs* regs)
 {
 	++startup_click;
-
 	lapic_eoi();
-	if((startup_click % 100) == 0){
-		do_sched();
-	}
 }

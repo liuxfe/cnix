@@ -1,5 +1,5 @@
 	bits	64
-	global	__switch_ctx, __jmp_ctx
+	global	__switch_ctx
 __switch_ctx:
 	pushf
 	push r15
@@ -19,7 +19,6 @@ __switch_ctx:
 	push rax
 
 	mov [rdi], rsp
-__jmp_ctx:
 	mov rsp, rsi
 
 	pop  rax

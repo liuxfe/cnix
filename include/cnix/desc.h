@@ -7,31 +7,31 @@ union IDTdesc64 {
 	int64_t high;
     };
     struct {
-	int   offset0_15 : 16;
-	int   selector   : 16;
-	int   ist        : 3;
-	int   resvered1  : 5;
-	int   attr       : 8;
-	int   offset16_31: 16;
-	int   offset32_63: 32;
-	int   resvered2  : 32;
+	long   offset0_15 : 16;
+	long   selector   : 16;
+	long   ist        : 3;
+	long   resvered1  : 5;
+	long   attr       : 8;
+	long   offset16_31: 16;
+	long   offset32_63: 32;
+	long   resvered2  : 32;
     };
 };
 extern union IDTdesc64 idt_tab[256];
-_Static_assert(sizeof(idt_tab)!=8192, "IDT table size error");
+_Static_assert(sizeof(idt_tab) == 4096, "IDT table size error");
 
 union GDTdesc {
     int64_t     value;
     struct {
-        int     limit0_15 : 16;
-        int     base0_23  : 24;
-        int     attr1     : 8;
-        int     limit16_19: 4;
-        int     attr2     : 4;
-        int     base24_31 : 8;
+        long    limit0_15 : 16;
+        long    base0_23  : 24;
+        long    attr1     : 8;
+        long    limit16_19: 4;
+        long    attr2     : 4;
+        long    base24_31 : 8;
     };
 };
-_Static_assert(sizeof(union GDTdesc)!=8, "GDT desc size error");
+_Static_assert(sizeof(union GDTdesc) == 8, "GDT desc size error");
 
 union TSSdesc {
     struct {
@@ -39,25 +39,24 @@ union TSSdesc {
         int64_t high;
     };
     struct {
-        int     limit0_15 : 16;
-        int     base0_23  : 24;
-        int     attr1     : 8;
-        int     limit16_19: 4;
-        int     attr2     : 4;
-        int     base24_31 : 8;
-        int     base32_63 : 32;
-        int     resvered  : 32;
+        long    limit0_15 : 16;
+        long    base0_23  : 24;
+        long    attr1     : 8;
+        long    limit16_19: 4;
+        long    attr2     : 4;
+        long    base24_31 : 8;
+        long    base32_63 : 32;
+        long    resvered  : 32;
     };
 };
-_Static_assert(sizeof(union TSSdesc)!=16, "TSS desc size error");
+_Static_assert(sizeof(union TSSdesc) == 16, "TSSdesc size error");
 
-#define	NR_TSS		((8192 - 6 * 8)/16)
+#define	NR_TSS		((4096 - 6 * 8)/16)
 extern struct {
-    union GDTdesc   gdt[6];
-    union TSSdesc   tss[NR_TSS];
+        union GDTdesc   gdt[6];
+        union TSSdesc   tss[NR_TSS];
 } gdt_tab;
-_Static_assert(sizeof(gdt_tab)!= 8192, "GDT table size error");
-
+_Static_assert(sizeof(gdt_tab) == 4096, "GDT table size error");
 
 inline void _set_idt64(long nr, long addr, long attr)
 {
