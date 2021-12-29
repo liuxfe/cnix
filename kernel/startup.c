@@ -38,24 +38,15 @@ static inline void i8259_init()
 	outb(0xa1, 0xff);
 }
 
-static void setup_gdt()
+static inline void setup_gdt()
 {
-	uint64_t tmp[5]={
-		0,
-		0x0020980000000000,
-		0x0000920000000000,
-		0x0020f80000000000,
-		0x0000f20000000000
-	};
-	memcpy(&gdt_tab, &tmp, 40);
-	//gdt_tab.gdt[0].value = 0;
-	//gdt_tab.gdt[1].value = 0x0020980000000000   ; // Kernel Code
-	//gdt_tab.gdt[2].value = 0x0000920000000000   ; // Kernel Data
-	//gdt_tab.gdt[3].value = 0x0020f80000000000   ; // User Code
-	//gdt_tab.gdt[4].value = 0x0000f20000000000   ; // User Data
+	gdt_tab.gdt[1].value = 0x0020980000000000   ; // Kernel Code
+	gdt_tab.gdt[2].value = 0x0000920000000000   ; // Kernel Data
+	gdt_tab.gdt[3].value = 0x0020f80000000000   ; // User Code
+	gdt_tab.gdt[4].value = 0x0000f20000000000   ; // User Data
 }
 
-static void setup_idt()
+static inline void setup_idt()
 {
 	set_trap_gate(0, (long)int_div_zero);
 	set_trap_gate(1, (long)int_debug);
@@ -88,7 +79,7 @@ extern struct{
 } pml4e, pdpe0, pde0, pte0;
 extern long _data, _brk;
 
-static void setup_pgt()
+static inline void setup_pgt()
 {
 	int i;
 	uint64_t p;
