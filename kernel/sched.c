@@ -6,8 +6,6 @@
 #include <cnix/desc.h>
 
 union thread *th1, *th2;
-extern void __k();
-
 
 #define rdcoms(_r,_i) 	{ outb(0x70, 0x80| _i); _r = inb(0x71); }
 #define COMS_SEC	0x00
@@ -15,7 +13,7 @@ extern void __k();
 
 uint64_t get_tsc_diff()
 {
-	long s1, s2;
+	volatile long s1, s2;
 	uint64_t tsc1, tsc2;
 
 	s1 = s2 = 0;
@@ -37,29 +35,38 @@ uint64_t get_tsc_diff()
 
 extern void int_lvt_timer();
 
-static long create_ctx(long func, long *p)
+
+// Save TS, XMM, YMM ?
+struct ctx_struct{
+	uint64_t rax;
+	uint64_t rbx;
+	uint64_t rcx;
+	uint64_t rdx;
+	uint64_t rdi;
+	uint64_t rsi;
+	uint64_t rbp;
+	uint64_t r8;
+	uint64_t r9;
+	uint64_t r10;
+	uint64_t r11;
+	uint64_t r12;
+	uint64_t r13;
+	uint64_t r14;
+	uint64_t r15;
+	uint64_t rflags;
+	uint64_t retaddr;
+};
+
+static long build_ctx(long* p, long func, long arg)
 {
-	*(--p) = func;		// ret
-	*(--p) = 0x10200;	// popfq
-	*(--p) = 0;		// r15
-	*(--p) = 0;		// r14
-	*(--p) = 0;		// r13
-	*(--p) = 0;		// r12
-	*(--p) = 0;		// r11
-	*(--p) = 0;		// r10
-	*(--p) = 0;		// r9
-	*(--p) = 0;		// r8
-	*(--p) = 0;     	// rbp
-	*(--p) = 0;     	// rsi
-	*(--p) = 0;   		// rdi
-	*(--p) = 0;     	// rdx
-	*(--p) = 0;     	// rcx
-	*(--p) = 0;     	// rbx
-	*(--p) = 0;     	// rax
-	return (long)p;
+	struct ctx_struct *ctx =(struct ctx_struct*)p - 1;
+	ctx->retaddr = func;
+	ctx->rdi = arg;
+	ctx->rflags = 0x10200;
+	return (long)ctx;
 }
 
-static union thread* create_thread(long func)
+static union thread* create_thread(long func, long arg)
 {
 	union thread* th;
 	long p = alloc_2page();
@@ -68,108 +75,26 @@ static union thread* create_thread(long func)
 		while(1);
 	}
 	th = (union thread*)__p2v(p);
-	th->stack = create_ctx(func, &(th->canarry2));
+	th->stack = build_ctx(&(th->canarry2), func, arg);
 	return th;
 }
 
 extern void __jmp_ctx(long unused, long p);
+extern void __switch_ctx(long *from, long to);
 
-void jmp_ctx(long *p)
-{
-	__asm__ __volatile__(
-	"movq %%rax, %%rsp	\n\t"
-	"popq %%rax		\n\t"
-	"popq %%rbx		\n\t"
-	"popq %%rcx		\n\t"
-	"popq %%rdx		\n\t"
-	"popq %%rdi		\n\t"
-	"popq %%rsi		\n\t"
-	"popq %%rbp		\n\t"
-	"popq %%r8		\n\t"
-	"popq %%r9		\n\t"
-	"popq %%r10		\n\t"
-	"popq %%r11		\n\t"
-	"popq %%r12		\n\t"
-	"popq %%r13		\n\t"
-	"popq %%r14		\n\t"
-	"popq %%r15		\n\t"
-	"popfq			\n\t"
-	"retq			\n\t"
-	::"a"(p)
-	);
-}
-void __switch_ctx(long *from, long to);
-void switch_ctx(long *from, long to)
-{
-	printk("SS");
-
-	void __ret();
-	// set tss->rsp0
-	__asm__ __volatile__ (
-	"pushq %%rdx	\n\t"  //return address
-
-	"pushfq			\n\t"
-	"pushq %%r15		\n\t"
-	"pushq %%r14		\n\t"
-	"pushq %%r13		\n\t"
-	"pushq %%r12		\n\t"
-	"pushq %%r11		\n\t"
-	"pushq %%r10		\n\t"
-	"pushq %%r9		\n\t"
-	"pushq %%r8		\n\t"
-	"pushq %%rbp		\n\t"
-	"pushq %%rsi		\n\t"
-	"pushq %%rdi		\n\t"
-	"pushq %%rdx		\n\t"
-	"pushq %%rcx		\n\t"
-	"pushq %%rbx		\n\t"
-	"pushq %%rax		\n\t"
-	"mov %%rsp, (%%rbx)	\n\t" // save old rsp
-	"mov %%rcx, %%rsp 	\n\t" // load new rsp
-	"popq %%rax		\n\t"
-	"popq %%rbx		\n\t"
-	"popq %%rcx		\n\t"
-	"popq %%rdx		\n\t"
-	"popq %%rdi		\n\t"
-	"popq %%rsi		\n\t"
-	"popq %%rbp		\n\t"
-	"popq %%r8		\n\t"
-	"popq %%r9		\n\t"
-	"popq %%r10		\n\t"
-	"popq %%r11		\n\t"
-	"popq %%r12		\n\t"
-	"popq %%r13		\n\t"
-	"popq %%r14		\n\t"
-	"popq %%r15		\n\t"
-	"popfq			\n\t"
-	"retq			\n\t"
-	"__ret:		  	\n\t"
-	::"b"(from),"c"(to), "d"(&__ret)
-    );
-}
-
-void loop1()
+void putc_loop(long c)
 {
 	while(1){
 		sti();
-		printk("A");
+		printk("%c", c);
 		for(volatile int i=0; i<0x2000000;i++);
-	}
-}
-
-void loop2()
-{
-	while(1){
-		sti();
-		printk("B");
-		for(volatile int i=0; i<0x1000000;i++);
 	}
 }
 
 void sched_init(int how)
 {
-	th1 = create_thread((long)loop1);
-	th2 = create_thread((long)loop2);
+	th1 = create_thread((long)putc_loop, 'F');
+	th2 = create_thread((long)putc_loop, 'S');
 
 	// Setup Local Timer.
 	set_intr_gate(T_LVT_TIMER, (long)int_lvt_timer);
@@ -187,6 +112,6 @@ void do_sched()
 
 void do_lvt_timer()
 {
-	//printk("D");
 	lapic_eoi();
+	//printk("D");
 }

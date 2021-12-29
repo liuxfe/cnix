@@ -26,7 +26,7 @@ void do_clock(struct trapregs* regs)
 	++startup_click;
 
 	lapic_eoi();
-//	if((startup_click % 100) == 0){
-//		do_sched();
-//	}
+	if((startup_click % 100) == 0){
+		do_sched();
+	}
 }

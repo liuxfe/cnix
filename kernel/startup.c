@@ -156,7 +156,6 @@ void cstartup(long cpu_id, long rsp)
 		mem_init();
 		time_init();
 		clock_init();
-
 		printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
 		//
 		//__asm__("int $1");

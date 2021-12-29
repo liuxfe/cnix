@@ -1,5 +1,5 @@
 	bits	64
-	global	__switch_ctx, __jmp_ctx, __k
+	global	__switch_ctx, __jmp_ctx
 __switch_ctx:
 	pushf
 	push r15
@@ -39,6 +39,3 @@ __jmp_ctx:
 	pop  r15
 	popf
 	ret
-
-__k:
-	iretq

@@ -99,7 +99,7 @@ static struct mpconf* __mc = NULL;
 
 void setup_smp()
 {
-	struct mpproc* proc;
+	//struct mpproc* proc;
 	struct mpioapic* _ioapic;
 
 	__mp= mpsearch();
@@ -118,7 +118,7 @@ void setup_smp()
 	for(int i=0;i<__mc->entrycnt;i++){
 		switch(*p){
 		    case T_PROC:
-			proc = (struct mpproc*)p;
+			//proc = (struct mpproc*)p;
 			//printk("CPU apicid: %d\n", proc->apicid);
 			NR_CPUS++;
 			p+=sizeof(struct mpproc);
