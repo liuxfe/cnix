@@ -146,116 +146,116 @@ startup64:
 
 
 	bits 64
-trap_div_zero:
+int_div_zero:
 	push r15
 	push r14
 	lea  r14, [rel do_div_zero]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_debug:
+int_debug:
 	push r15
 	push r14
 	lea  r14, [rel do_debug]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_nmi:
+int_nmi:
 	push r15
 	push r14
 	lea  r14, [rel do_nmi]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_breakpoint:
+int_breakpoint:
 	push r15
 	push r14
 	lea  r14, [rel do_breakpoint]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_overflow:
+int_overflow:
 	push r15
 	push r14
 	lea  r14, [rel do_overflow]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_bound_range:
+int_bound_range:
 	push r15
 	push r14
 	lea  r14, [rel do_bound_range]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_invalid_opcode:
+int_invalid_opcode:
 	push r15
 	push r14
 	lea  r14, [rel do_invalid_opcode]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_device_not_invalid:
+int_device_not_invalid:
 	push r15
 	push r14
 	lea  r14, [rel do_device_not_invalid]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_double_fault:
+int_double_fault:
 	push r14
 	lea  r14, [rel do_double_fault]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_reserved:
+int_reserved_trap:
 	push r15
 	push r14
 	lea  r14, [rel do_reserved_trap]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_invalid_tss:
+int_invalid_tss:
 	push r14
 	lea  r14, [rel do_invalid_tss]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_segment_not_exsit:
+int_segment_not_exsit:
 	push r14
 	lea  r14, [rel do_segment_not_exsit]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_stack_segment_fault:
+int_stack_segment_fault:
 	push r14
 	lea  r14, [rel do_stack_segment_fault]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_general_protection:
+int_general_protection:
 	push r14
 	lea  r14, [rel do_general_protection]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_page_fault:
+int_page_fault:
 	push r14
 	lea  r14, [rel do_page_fault]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_x87_fpu_error:
+int_x87_fpu_error:
 	push r15
 	push r14
 	lea  r14, [rel do_x87_fpu_error]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_align_check:
+int_align_check:
 	push r14
 	lea  r14, [rel do_align_check]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_machine_check:
+int_machine_check:
 	push r15
 	push r14
 	lea  r14, [rel do_machine]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_SIMD_fault:
+int_SIMD_fault:
 	push r15
 	push r14
 	lea  r14, [rel do_SMID_fault]
-	jmp  trap_noerr_comm
+	jmp  int_noerr_comm
 
-trap_error_comm:
+int_error_comm:
 	xchg qword r15, [rsp+8]
-trap_noerr_comm:
+int_noerr_comm:
 	push r13
 	push r12
 	push r11
@@ -285,14 +285,14 @@ trap_noerr_comm:
 
 	jmp ret_from_kernel_trap
 
-trap_ignore_intr:
+int_default_ignore:
 	push r15
-	lea  r15, [rel do_ignore_intr]
+	lea  r15, [rel do_default_ignore]
 	jmp  intr_comm
 
-trap_clock_intr:
+int_clock:
 	push r15
-	lea  r15, [rel do_clock_intr]
+	lea  r15, [rel do_clock]
 	jmp  intr_comm
 intr_comm:
 	push r14
@@ -350,18 +350,15 @@ extern do_double_fault, do_invalid_tss, do_segment_not_exsit
 extern do_stack_segment_fault, do_general_protection, do_page_fault
 extern do_x87_fpu_error, do_align_check, do_machine
 extern do_SMID_fault, do_reserved_trap
-
-global trap_div_zero, trap_debug, trap_nmi, trap_breakpoint, trap_overflow
-global trap_bound_range, trap_invalid_opcode, trap_device_not_invalid
-global trap_double_fault, trap_reserved, trap_invalid_tss
-global trap_segment_not_exsit, trap_stack_segment_fault
-global trap_general_protection, trap_page_fault,trap_x87_fpu_error
-global trap_align_check, trap_machine_check, trap_SIMD_fault
-
-extern do_ignore_intr, do_clock_intr
-global trap_ignore_intr, trap_clock_intr
-
+extern do_default_ignore, do_clock
 extern cstartup
-global startup16, startup32, startup64, ret_from_kernel_trap
-
 extern gdt_tab, idt_tab, _bss, _brk, boot_cpu_id, mem_start
+
+global int_div_zero, int_debug, int_nmi, int_breakpoint, int_overflow
+global int_bound_range, int_invalid_opcode, int_device_not_invalid
+global int_double_fault, int_reserved_trap, int_invalid_tss
+global int_segment_not_exsit, int_stack_segment_fault
+global int_general_protection, int_page_fault,int_x87_fpu_error
+global int_align_check, int_machine_check, int_SIMD_fault
+global int_default_ignore, int_clock
+global startup16, startup32, startup64, ret_from_kernel_trap

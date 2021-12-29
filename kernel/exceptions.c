@@ -121,7 +121,7 @@ void do_reserved_trap(long rsp, long error_code)
 }
 
 
-void do_ignore_intr()
+void do_default_ignore()
 {
-	printk("ignore intr");
+	printk("default ignore");
 }
