@@ -13,7 +13,7 @@ struct cpu_struct cpu_struct[NR_CPU_MAX] = { 0 };
 #define COMS_SEC	0x00
 #define HZ 60
 
-static uint64_t get_tsc_diff()
+static uint64_t __init get_tsc_diff()
 {
 	volatile long s1, s2;
 	uint64_t tsc1, tsc2;
@@ -96,7 +96,7 @@ static union thread* init_idle_thread(long cpu_id)
 	return th;
 }
 
-void sched_init(long cpu_id)
+void __init sched_init(long cpu_id)
 {
 	union thread* th;
 

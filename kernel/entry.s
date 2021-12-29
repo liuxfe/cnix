@@ -1,6 +1,7 @@
 PHYOFF	EQU	0xFFFF800000000000
 KSTART	EQU	0x1000
 
+	section .head
 	bits	16
 startup16:
 	cli
@@ -144,7 +145,7 @@ startup64:
 	jmp	cstartup
 
 
-
+	section .text
 	bits 64
 int_div_zero:
 	push r15

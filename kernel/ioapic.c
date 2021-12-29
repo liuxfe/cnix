@@ -35,7 +35,7 @@ static inline void iopaic_write(int reg, int64_t data)
 	ioapic->data64 = data;
 }
 
-void setup_ioapic()
+void __init setup_ioapic()
 {
 	if(!ioapic){
 		printk("IOAPIC Not Found!");

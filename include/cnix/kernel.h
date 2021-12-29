@@ -10,6 +10,8 @@ typedef unsigned int            uint32_t;
 typedef signed long long        int64_t;
 typedef unsigned long long      uint64_t;
 
+#define __init __attribute__((section (".init")))
+
 // stdbool
 #define bool	_Bool
 #define true	1

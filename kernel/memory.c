@@ -41,7 +41,7 @@ struct mem_zone{
 int NR_ZONE = 0;
 extern long _data, _brk;
 
-void mem_init()
+void __init mem_init()
 {
 	//dump_e820();
 	long _mem_start = (long)&_brk + 8192*NR_CPUS - PHYOFF;

@@ -4,7 +4,7 @@
 
 int32_t* __lapic = 0;
 
-void lapic_init(int cpu_id)
+void __init lapic_init(int cpu_id)
 {
 	int32_t eax, ebx, ecx, edx;
 

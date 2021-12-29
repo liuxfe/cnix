@@ -130,7 +130,7 @@ extern void mem_init();
 extern void lapic_init(long cpu_id);
 extern void sched_init(long cpu_id);
 
-void cstartup(long cpu_id, long rsp)
+void __init cstartup(long cpu_id, long rsp)
 {
 	if(!cpu_id){
 		console_early_init();

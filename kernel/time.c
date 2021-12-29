@@ -46,7 +46,7 @@ static inline long mktime(int year, int mon, int day,
 
 long kstartup_timestmp = 0;
 
-void time_init()
+void __init time_init()
 {
 	char ylow, yhigh, month, day, hour, minute, second, sec2;
 

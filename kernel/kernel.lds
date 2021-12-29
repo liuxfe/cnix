@@ -11,6 +11,7 @@ SECTIONS
 	{
 		_text = .;
 		*(.head);
+		*(.init);
 		*(.text);
 	}
 

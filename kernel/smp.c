@@ -52,7 +52,7 @@ struct mpioapic {			// I/O APIC table entry
   	uint32_t	addr;		// I/O APIC address
 };
 
-static int sum(uint8_t * addr, int len)
+static __init int sum(uint8_t * addr, int len)
 {
 	uint8_t sum = 0;
 	for(int i=0; i<len; i++)
@@ -60,7 +60,7 @@ static int sum(uint8_t * addr, int len)
 	return sum;
 }
 
-static struct mp* mpsearch()
+static __init struct mp* mpsearch()
 {
 	uint8_t* start = (uint8_t*)__p2v(0xF0000);
 	uint8_t* end =   (uint8_t*)__p2v(0xFFFFF);
@@ -74,7 +74,7 @@ static struct mp* mpsearch()
 	return NULL;
 }
 
-static void checkmc(struct mpconf* mc)
+static __init void checkmc(struct mpconf* mc)
 {
 	if(mc->signature[0]!='P' || mc->signature[1]!='C' ||
 		mc->signature[2]!='M' || mc->signature[3]!='P'){
@@ -97,7 +97,7 @@ extern void* ioapic;
 static struct mp * __mp = NULL;
 static struct mpconf* __mc = NULL;
 
-void setup_smp()
+void __init setup_smp()
 {
 	//struct mpproc* proc;
 	struct mpioapic* _ioapic;

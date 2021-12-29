@@ -10,7 +10,7 @@
 unsigned long startup_click = 0;
 
 extern void int_clock();
-void clock_init()
+void __init clock_init()
 {
 	outb(0x43, 0x36);
 	outb(0x40, LATCH && 0xff);
