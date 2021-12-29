@@ -149,4 +149,23 @@ static inline void wrmsr(int32_t index, int64_t value)
     );
 }
 
+static inline int64_t rdtsc()
+{
+    union {
+	int64_t		v;
+	struct {
+	    int32_t	l;
+	    int32_t	h;
+	};
+    } arg;
+
+    __asm__ __volatile__ (
+	"rdtsc \n\t"
+	:"=d"(arg.h), "=a"(arg.l)
+	:
+	:"memory"
+    );
+    return arg.v;
+}
+
 #endif

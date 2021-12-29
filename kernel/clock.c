@@ -2,6 +2,7 @@
 #include <cnix/traps.h>
 #include <cnix/asm.h>
 #include <cnix/desc.h>
+#include <cnix/lapic.h>
 
 #define HZ	60
 #define LATCH	(1193180/HZ)

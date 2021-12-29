@@ -1,4 +1,5 @@
 #include <cnix/kernel.h>
+#include <cnix/lapic.h>
 
 struct mp {				// floating pointer
 	uint8_t		signature[4];	// "_MP_"
@@ -91,28 +92,30 @@ static void checkmc(struct mpconf* mc)
 
 int NR_CPUS=0;
 
-extern int32_t* lapicbase;
 extern void* ioapic;
+
+static struct mp * __mp = NULL;
+static struct mpconf* __mc = NULL;
 
 void setup_smp()
 {
 	struct mpproc* proc;
 	struct mpioapic* _ioapic;
 
-	struct mp* mp= mpsearch();
-	if(!mp){
+	__mp= mpsearch();
+	if(!__mp){
 		printk("_MP_  not found ！");
 		while(1){};
 	}
 
-	struct mpconf *mc = (struct mpconf *)__p2v(mp->physaddr);
-	checkmc(mc);
-	printk("MP Conf : entry count=%d\n", mc->entrycnt);
-	printk("MP Conf : lapicaddr=%x\n", mc->lapicaddr);
-	lapicbase =(int32_t*) __p2v(mc->lapicaddr);
+	__mc = (struct mpconf *)__p2v(__mp->physaddr);
+	checkmc(__mc);
+	//printk("MP Conf : entry count=%d\n", mc->entrycnt);
+	//printk("MP Conf : lapicaddr=%x\n", mc->lapicaddr);
+	__lapic =(int32_t*) __p2v(__mc->lapicaddr); // set Local APIC address
 
-	uint8_t* p = (uint8_t*)mc + sizeof(struct mpconf);
-	for(int i=0;i<mc->entrycnt;i++){
+	uint8_t* p = (uint8_t*)__mc + sizeof(struct mpconf);
+	for(int i=0;i<__mc->entrycnt;i++){
 		switch(*p){
 		    case T_PROC:
 		    	proc = (struct mpproc*)p;

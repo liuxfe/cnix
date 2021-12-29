@@ -122,13 +122,12 @@ struct __attribute__((packed)){
 
 static inline void _lgdt()
 {
-	__asm__ __volatile__("lgdt __gdtr(%%rip)"::);
-	//__asm__ __volatile__("movw %%ax, %%ds"::"a"(0x10));
+	__asm__ __volatile__("lgdt __gdtr(%%rip)":::"memory");
 }
 
 static inline void _lidt()
 {
-	__asm__ __volatile__("lidt __idtr(%%rip)"::);
+	__asm__ __volatile__("lidt __idtr(%%rip)":::"memory");
 }
 
 extern void console_early_init();
@@ -156,15 +155,15 @@ void cstartup(long cpu_id, long rsp)
 	if(!cpu_id){
 		mem_init();
 		time_init();
-		sti();
+
 		printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
-		//sched_init(1);
-
-
+		//
 		//__asm__("int $1");
 	}
 	lapic_init(cpu_id);
+	sti();
 	printk("CPU%d started\n", cpu_id);
+	sched_init(cpu_id);
 
 	while(1){}
 }

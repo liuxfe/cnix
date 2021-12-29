@@ -1,9 +1,41 @@
 #include <cnix/kernel.h>
 #include <cnix/sched.h>
 #include <cnix/asm.h>
+#include <cnix/lapic.h>
+#include <cnix/traps.h>
+#include <cnix/desc.h>
 
 union thread *th1, *th2;
 extern void __k();
+
+
+#define rdcoms(_r,_i) 	{ outb(0x70, 0x80| _i); _r = inb(0x71); }
+#define COMS_SEC	0x00
+#define HZ 60
+
+uint64_t get_tsc_diff()
+{
+	long s1, s2;
+	uint64_t tsc1, tsc2;
+
+	s1 = s2 = 0;
+	rdcoms(s1, COMS_SEC);
+	do{
+		rdcoms(s2, COMS_SEC);
+	}while(s1 == s2);
+	tsc1 = rdtsc();
+
+	s1 = s2 = 0;
+	rdcoms(s1, COMS_SEC);
+	do{
+		rdcoms(s2, COMS_SEC);
+	}while(s1 == s2);
+	tsc2 = rdtsc();
+
+	return tsc2 - tsc1;
+}
+
+extern void int_lvt_timer();
 
 static long create_ctx(long func, long *p)
 {
@@ -139,13 +171,23 @@ void sched_init(int how)
 {
 	th1 = create_thread((long)loop1);
 	th2 = create_thread((long)loop2);
-	clock_init();
-	__jmp_ctx(0, th1->stack);
+
+	// Setup Local Timer.
+	set_intr_gate(T_LVT_TIMER, (long)int_lvt_timer);
+	lapic_write(LAPIC_LVT_TIMER, (1<<17)|T_LVT_TIMER);
+	lapic_write(LAPIC_TICR, get_tsc_diff()/HZ);
+
+	//__jmp_ctx(0, th1->stack);
 }
 
 void do_sched()
 {
-union thread *to = (me == th1)? th2:th1;
-__switch_ctx(&(me->stack),to->stack);
+	union thread *to = (me == th1)? th2:th1;
+	__switch_ctx(&(me->stack),to->stack);
 }
 
+void do_lvt_timer()
+{
+	printk("A");
+	lapic_eoi();
+}

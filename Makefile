@@ -25,6 +25,10 @@ dbg: $(IMAGE)
 	$(QEMU) -fda $(IMAGE) -S -gdb tcp::4000 &
 	gdb -ex "file kernel/kernel.dbg" -ex "tar remote localhost:4000"
 
+dbg2: $(IMAGE)
+	gdb -ex "file kernel/kernel.dbg" -ex "tar remote localhost:8833"
+
+
 clean:
 	cd kernel; make clean
 	-rm $(IMAGE)

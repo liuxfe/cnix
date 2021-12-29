@@ -294,6 +294,11 @@ int_clock:
 	push r15
 	lea  r15, [rel do_clock]
 	jmp  intr_comm
+
+int_lvt_timer:
+	push r15
+	lea  r15, [rel do_lvt_timer]
+	jmp  intr_comm
 intr_comm:
 	push r14
 	push r13
@@ -350,7 +355,7 @@ extern do_double_fault, do_invalid_tss, do_segment_not_exsit
 extern do_stack_segment_fault, do_general_protection, do_page_fault
 extern do_x87_fpu_error, do_align_check, do_machine
 extern do_SMID_fault, do_reserved_trap
-extern do_default_ignore, do_clock
+extern do_default_ignore, do_clock, do_lvt_timer
 extern cstartup
 extern gdt_tab, idt_tab, _bss, _brk, boot_cpu_id, mem_start
 
@@ -360,5 +365,5 @@ global int_double_fault, int_reserved_trap, int_invalid_tss
 global int_segment_not_exsit, int_stack_segment_fault
 global int_general_protection, int_page_fault,int_x87_fpu_error
 global int_align_check, int_machine_check, int_SIMD_fault
-global int_default_ignore, int_clock
+global int_default_ignore, int_clock, int_lvt_timer
 global startup16, startup32, startup64, ret_from_kernel_trap

@@ -24,6 +24,16 @@
 
 #define T_IOAPIC	0x20
 #  define T_CLOCK	2
+
+#define T_LocalAPIC	0x38
+#  define T_LVT_CMCI  	0x38
+#  define T_LVT_TIMER	0x39	// LVT timer
+#  define T_LVT_TM	0x3A	// LVT Thermal Monitor
+#  define T_LVT_PC	0x3B	// LVT Performance Counter
+#  define T_LVT_LINT0	0x3C
+#  define T_LVT_LINT1	0x3D
+#  define T_LVT_ERROR	0x3E
+
 struct trapregs {
 	unsigned long ds;
 	unsigned long es;
