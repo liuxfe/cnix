@@ -41,18 +41,18 @@
 
 int32_t* lapicbase = 0;
 
-static int32_t lapic_read(long offset)
+static inline int32_t lapic_read(long offset)
 {
 	return lapicbase[offset>>2];
 }
 
-static void lapic_write(long offset, int32_t value)
+static inline void lapic_write(long offset, int32_t value)
 {
 	lapicbase[offset>>2] = value;
-	//mfence();
+	__asm__ __volatile__("":::"memory");
 }
 
-void lapic_init()
+void lapic_init(int cpu_id)
 {
 	int32_t eax, ebx, ecx, edx;
 
@@ -63,7 +63,7 @@ void lapic_init()
 	}
 
 	// enable local APIC
-	lapic_write(LAPIC_SVR , lapic_read(LAPIC_SVR) | (1 << 8));
+	//lapic_write(LAPIC_SVR , lapic_read(LAPIC_SVR) | (1 << 8));
 
 	// Mask ALL LVT
 	//lapic_write(LAPIC_LVT_CMCI,  (1<<16));
@@ -75,21 +75,21 @@ void lapic_init()
 	//lapic_write(LAPIC_LVT_ERROR, (1<<16));
 
 	// Clear error status register (requires back-to-back writes).
-  	lapic_write(LAPIC_ESR, 0);
-  	lapic_write(LAPIC_ESR, 0);
+	lapic_write(LAPIC_ESR, 0);
+	lapic_write(LAPIC_ESR, 0);
 
-  	// Ack any outstanding interrupts.
-  	lapic_write(LAPIC_EOI, 0);
+	// Ack any outstanding interrupts.
+	lapic_write(LAPIC_EOI, 0);
 
-  	// Is BSP, Send INIT-SIPI-SIPI to AP
-  	//if(rdmsr(MSR_APIC_BASE) &( 1<< 8)){
-	//	lapic_write(LAPIC_ICR0,0x000C4500);
-	//	lapic_write(LAPIC_ICR0,0x000C4610);
-	//	lapic_write(LAPIC_ICR0,0x000C4610);
-  	//}
+	// Is BSP, Send INIT-SIPI-SIPI to AP
+	if(cpu_id == 0){
+		lapic_write(LAPIC_ICR0,0x000C4500);
+		lapic_write(LAPIC_ICR0,0x000C4601);
+		lapic_write(LAPIC_ICR0,0x000C4601);
+	}
 
-  	// Setup Local Timer.
-  	//lapic_set_timer(0x30000000, lapic_timer_boot_traphandle);
+	// Setup Local Timer.
+	//lapic_set_timer(0x30000000, lapic_timer_boot_traphandle);
 }
 
 void lapic_eoi()

@@ -38,7 +38,7 @@ ioapic.o: ioapic.c ../include/cnix/kernel.h ../include/cnix/asm.h
 lapic.o: lapic.c ../include/cnix/kernel.h ../include/cnix/asm.h
 memory.o: memory.c ../include/cnix/kernel.h ../include/cnix/asm.h \
  ../include/cnix/desc.h ../include/cnix/traps.h
-printk.o: printk.c
+printk.o: printk.c ../include/cnix/kernel.h ../include/cnix/spinlock.h
 sched.o: sched.c ../include/cnix/kernel.h ../include/cnix/sched.h \
  ../include/cnix/asm.h
 smp.o: smp.c ../include/cnix/kernel.h

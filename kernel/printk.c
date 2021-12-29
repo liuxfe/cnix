@@ -1,3 +1,6 @@
+#include <cnix/kernel.h>
+#include <cnix/spinlock.h>
+
 #define va_list                 __builtin_va_list
 #define va_start(ap, fmt)       __builtin_va_start(ap,fmt)
 #define va_arg(ap,type)         __builtin_va_arg(ap,type)
@@ -89,13 +92,17 @@ static void puti(long num, int base, int width, int flag)
 		putk(' ');
 }
 
-void printk(const char *fmt, ...)
+static spinlock_t pirntk_sl = {SPIN_UNLOCK};
+
+void printk(char *fmt, ...)
 {
 	int flag, width, l;
 	va_list arg;
 	char *s;
 
 	va_start(arg, fmt);
+
+	spin_lock(&pirntk_sl);
 
 	while(*fmt) {
 		if( '%' != *fmt ) {
@@ -107,6 +114,7 @@ void printk(const char *fmt, ...)
 	    repeat1:
 		fmt++;
 		switch( *fmt ) {
+
 		    case '-':
 			flag |= F_LEFT;
 			goto repeat1;
@@ -195,4 +203,5 @@ void printk(const char *fmt, ...)
 			putk(*(fmt - 1));
 		}
 	}
+	spin_unlock(&pirntk_sl);
 }

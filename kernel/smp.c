@@ -94,7 +94,7 @@ int NR_CPUS=0;
 extern int32_t* lapicbase;
 extern void* ioapic;
 
-void smp_init()
+void setup_smp()
 {
 	struct mpproc* proc;
 	struct mpioapic* _ioapic;

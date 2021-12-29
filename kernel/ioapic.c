@@ -35,24 +35,25 @@ static inline void iopaic_write(int reg, int64_t data)
 	ioapic->data64 = data;
 }
 
-void ioapic_init()
+void setup_ioapic()
 {
-	int ver, maxintr;
 	if(!ioapic){
 		printk("IOAPIC Not Found!");
 	}
 
-	ver = ioapic_read32(IOAPIC_VER);
-	printk("IOAPIC-ID:%x\nIOAPIC-VERSION:%x\n",
-		ioapic_read32(IOAPIC_ID), ver);
-	maxintr = (ver >> 16) & 0xff;
-	printk("maxintr=%d\n", maxintr);
+	int ver = ioapic_read32(IOAPIC_VER);
+	//printk("IOAPIC-ID:%x\nIOAPIC-VERSION:%x\n",
+	//	ioapic_read32(IOAPIC_ID), ver);
+	int maxintr = (ver >> 16) & 0xff;
+	//printk("maxintr=%d\n", maxintr);
 
-	for(int i=0; i< maxintr; i++){
+	for(int i=0; i<= maxintr; i++){
 		iopaic_write(IOAPIC_RTE0 + 2*i, (1<<16) | (i + 0x20));
 	}
 
 	outb(0x21,0xff); outb(0xA1,0xff); // Mask all 8259A.
+
+	__asm__ __volatile__("":::"memory");
 }
 
 void ioapic_enable(int irq)

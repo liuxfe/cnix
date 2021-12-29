@@ -133,11 +133,12 @@ static inline void _lidt()
 
 extern void console_early_init();
 extern void time_init();
-extern void smp_init();
-extern void ioapic_init();
+extern void setup_smp();
+extern void setup_ioapic();
 extern void clock_init();
 extern void mem_init();
 extern void sched_init(int how);
+extern void lapic_init(int cpu_id);
 
 void cstartup(long cpu_id, long rsp)
 {
@@ -146,21 +147,24 @@ void cstartup(long cpu_id, long rsp)
 		setup_pgt();
 		setup_gdt();
 		setup_idt();
+		setup_smp();
+		setup_ioapic();
 	}
 	_lgdt();
 	_lidt();
 
 	if(!cpu_id){
-		time_init();
-		smp_init();
-		ioapic_init();
-
 		mem_init();
+		time_init();
 		sti();
 		printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
-		sched_init(1);
+		//sched_init(1);
+
 
 		//__asm__("int $1");
 	}
+	lapic_init(cpu_id);
+	printk("CPU%d started\n", cpu_id);
+
 	while(1){}
 }
