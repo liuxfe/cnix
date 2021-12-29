@@ -34,10 +34,10 @@ struct mem_zone{
 	uint64_t start;
 	uint64_t end;
 	uint64_t free;
-} mem_zone[NR_ZONE_MAX];
-int NR_ZONE;
+} mem_zone[NR_ZONE_MAX] = { 0 };
+int NR_ZONE = 0;
 extern long _data, _brk;
-extern int NR_CPUS;
+
 void mem_init()
 {
 	dump_e820();
