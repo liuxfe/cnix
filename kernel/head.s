@@ -1,4 +1,4 @@
-extern cstartup, _bss, _brk, boot_cpu_id, mem_start
+extern cstartup, _bss, _brk
 global startup16, startup32, startup64
 
 PHYOFF	EQU	0xFFFF800000000000
@@ -131,17 +131,16 @@ startup64:
 
 	mov	rdi, -1
 .spin:
-	xchg	rdi, [rel boot_cpu_id]
+	xchg	rdi, [rel _cpu_id]
 	cmp	rdi, -1
 	je	.spin
 
-	add	qword [rel mem_start], 8192
-	mov	rsp, [rel mem_start]
-	mov	rsi, rsp
-
 	mov	rax, rdi
 	inc	rax
-	mov	qword [rel boot_cpu_id], rax ; release lock
+	mov	qword [rel _cpu_id], rax ; release lock
+
+	add	qword [rel _stack], 8192
+	mov	rsp, [rel _stack]
 
 	jmp	cstartup
 
@@ -154,3 +153,8 @@ _tmp_gdt:
 _tmp_gdtptr:
 	dw	$ - _tmp_gdt - 1
 	dd	_tmp_gdt - $$ + KSTART
+
+	section .data
+_cpu_id:
+	dq	0
+_stack:	dq	_brk

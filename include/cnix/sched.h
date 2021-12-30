@@ -15,7 +15,7 @@ union thread{
 		long canarry2;
 	};
 };
-_Static_assert(sizeof(union thread) == 8192);
+_Static_assert(sizeof(union thread) == 8192, "");
 
 struct cpu_struct{
 	union thread *idle;

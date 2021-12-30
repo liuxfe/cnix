@@ -99,9 +99,6 @@ static inline void setup_pgt()
 		pdpe0.entry[i] = i * 1024 * 1024 * 1024ULL + 0x87;
 }
 
-long boot_cpu_id = 0;
-long mem_start = (long)&_brk;
-
 struct __attribute__((packed)){
 	uint16_t limit;
 	uint64_t base;
