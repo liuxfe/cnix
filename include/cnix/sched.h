@@ -20,8 +20,6 @@ _Static_assert(sizeof(union thread) == 8192);
 struct cpu_struct{
 	union thread *idle;
 	union thread *ready;
-	union thread *th1;
-	union thread *th2;
 };
 
 extern struct cpu_struct cpu_struct[NR_CPU_MAX];

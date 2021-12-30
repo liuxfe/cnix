@@ -17,7 +17,7 @@ OBJS	= $(patsubst %.s,%.o ,$(wildcard *.s)) \
 
 kernel.bin: $(OBJS) kernel.lds Makefile
 	$(LD) -static -T kernel.lds -Map kernel.map -o kernel.dbg $(OBJS)
-	$(OBJCOPY) -S -R bss -O binary kernel.dbg kernel.bin
+	$(OBJCOPY) -S -O binary kernel.dbg kernel.bin
 
 dep:
 	sed -n 1,/\#\#\#Depend/p Makefile > makefile.tmp

@@ -148,13 +148,11 @@ void __init cstartup(long cpu_id, long rsp)
 		time_init();
 		clock_init();
 		printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
-		//
-		//__asm__("int $1");
 	}
-	lapic_init(cpu_id);
-	//sti();
-	printk("CPU%d started\n", cpu_id);
-	sched_init(cpu_id);
 
-	while(1){}
+	lapic_init(cpu_id);
+	sched_init(cpu_id);
+	printk("CPU%d started\n", cpu_id);
+
+	__asm__ __volatile__("1:;sti;hlt;jmp 1b;");
 }

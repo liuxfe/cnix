@@ -83,7 +83,7 @@ void putc_loop(long c)
 {
 	while(1){
 		printk("%c", c);
-		for(volatile int i=0; i<0x1000000;i++);
+		__asm__ __volatile__("1:;sti;hlt;");
 	}
 }
 
@@ -108,46 +108,43 @@ void __init sched_init(long cpu_id)
 	cpu->idle = init_idle_thread(cpu_id);
 	cpu->ready = NULL;
 
-	//
-	th = create_thread((long)putc_loop, 'A' + cpu_id);
-	th->cpu_id = cpu_id;
-	//th->next = cpu->ready;
-	//cpu->ready = th;
-	cpu->th1=th;
+	if(cpu_id !=0){
+		th = create_thread((long)putc_loop, 'A' + cpu_id);
+		th->cpu_id = cpu_id;
+		th->next = cpu->ready;
+		cpu->ready = th;
 
-	th = create_thread((long)putc_loop, 'H' + cpu_id);
-	//th->next = cpu->ready;
-	//cpu->ready = th;
-	th->cpu_id = cpu_id;
-	cpu->th2=th;
+		th = create_thread((long)putc_loop, 'H' + cpu_id);
+		th->next = cpu->ready;
+		th->cpu_id = cpu_id;
+		cpu->ready = th;
+	}
 
 	// Setup Local Timer.
 	set_intr_gate(T_LVT_TIMER, (long)int_lvt_timer);
 	lapic_write(LAPIC_LVT_TIMER, (1<<17)|T_LVT_TIMER);
-	lapic_write(LAPIC_TICR, get_tsc_diff()/HZ);
-	sti();
+	lapic_write(LAPIC_TICR, get_tsc_diff()/HZ/2);
 }
 
 extern void __switch_ctx(long *from, long to);
 void do_sched()
 {
-	union thread *tmp;
 	struct cpu_struct* cpu = cpu_struct+ me->cpu_id;
+	union thread* to=cpu->idle;
 
-	//union thread* to;=cpu->idle;
-/*
-	if(cpu->ready){
+	if(cpu->ready != NULL){
 		to = cpu->ready;
 		cpu->ready = to->next;
 
-		tmp = cpu->ready;
-		while(tmp->next) tmp = tmp->next;
+		union thread *tmp = cpu->ready;
+		while(tmp->next)
+			tmp = tmp->next;
 		tmp->next = to;
 		to->next = NULL;
 	}
-	*/
-	union thread*  to = (me == cpu->th1) ? cpu->th2: cpu->th1;
-	//if(to != me)
+
+	//union thread*  to = (me == cpu->th1) ? cpu->th2: cpu->th1;
+	if(to != me)
 		__switch_ctx(&me->stack,to->stack);
 }
 
