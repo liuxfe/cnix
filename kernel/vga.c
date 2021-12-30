@@ -35,6 +35,13 @@ void console_printc(char ch)
 		cur_x = 0;
 		srcoll_up();
 		set_cur();
+	} else if('\t' == ch) {
+		cur_x = (cur_x + 8) & ~7;
+		if(++cur_x >= 80) {
+			cur_y++;
+			cur_x = 0;
+			srcoll_up();
+		}
 	} else {
 		char* p = (char*)(cur_org + (cur_y * 80 + cur_x) * 2);
 		*p++ = ch;
