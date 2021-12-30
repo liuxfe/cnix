@@ -13,6 +13,12 @@
 	:"memory"			\
 	);
 
+#define lcr3(_v)                        \
+	__asm__ __volatile__(           \
+		"mov %%rax, %%cr3 \n\t" \
+		::"a"(_v)               \
+	);
+
 static inline char inb(short p)
 {
 	char r;
@@ -110,44 +116,6 @@ static inline char inb(short p)
 		 "=c"(_c),"=d"(_d)      \
 		:"0"(_l),"2"(_s)        \
 	);
-
-static inline int64_t rdmsr(int index)
-{
-	union {
-		int64_t         v;
-		struct {
-			int32_t l;
-			int32_t h;
-		};
-    	} arg;
-
-	__asm__ __volatile__ (
-		"rdmsr \n\t"
-		:"=d"(arg.h), "=a"(arg.l)
-		:"c"(index)
-		:"memory"
-	);
-	return arg.v;
-}
-
-static inline void wrmsr(int32_t index, int64_t value)
-{
-	union  {
-		int64_t		v;
-		struct {
-			int32_t l;
-			int32_t h;
-		};
-	} arg;
-
-	arg.v = value;
-	__asm__ __volatile__ (
-		"wrmsr \n\t"
-		:
-		:"d"(arg.h), "a"(arg.l), "c"(index)
-		:"memory"
-	);
-}
 
 static inline int64_t rdtsc()
 {

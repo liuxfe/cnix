@@ -24,6 +24,7 @@ extern void int_machine_check();
 extern void int_SIMD_fault();
 extern void int_default_ignore();
 
+#if 0
 static inline void i8259_init()
 {
 	outb(0x20, 0x11);
@@ -37,6 +38,7 @@ static inline void i8259_init()
 	outb(0x21, 0xfb);
 	outb(0xa1, 0xff);
 }
+#endif
 
 static inline void setup_gdt()
 {
