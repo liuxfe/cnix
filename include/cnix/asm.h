@@ -19,11 +19,14 @@
 		::"a"(_v)               \
 	);
 
-static inline char inb(short p)
+static inline unsigned char inb(short p)
 {
 	char r;
 	__asm__ __volatile__ (
-		"inb  %%dx, %%al \n\t" :"=a"(r) :"d"(p)
+		"inb  %%dx, %%al \n\t"
+		"mfence          \n\t"
+		:"=a"(r) :"d"(p)
+		:"memory"
 	);
 	return r;
 }
@@ -72,9 +75,9 @@ static inline char inb(short p)
 	__asm__ __volatile__ (          \
 		"cld        \n\t"       \
 		"rep insw   \n\t"       \
-		"mfence     \n\t"       \
 		:                       \
-		:"d"(_p),"D"(_b),"c"(_c>>1)\
+		:"d"(_p),"D"(_b),"c"(_c)\
+		:"memory"		\
 	);
 #define insl(_p,_b,_c)                  \
 	__asm__ __volatile__ (          \

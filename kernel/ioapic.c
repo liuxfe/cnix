@@ -35,6 +35,12 @@ static inline void iopaic_write(int reg, int64_t data)
 	ioapic->data64 = data;
 }
 
+static inline void iopaic_write32(int reg, int32_t data)
+{
+	ioapic->reg = reg;
+	ioapic->data32 = data;
+}
+
 void __init setup_ioapic()
 {
 	if(!ioapic){
@@ -48,7 +54,7 @@ void __init setup_ioapic()
 	//printk("maxintr=%d\n", maxintr);
 
 	for(int i=0; i<= maxintr; i++){
-		iopaic_write(IOAPIC_RTE0 + 2*i, (1<<16) | (i + 0x20));
+		iopaic_write32(IOAPIC_RTE0 + 2*i, (1<<16) | (i + 0x20));
 	}
 
 	outb(0x21,0xff); outb(0xA1,0xff); // Mask all 8259A.
@@ -58,7 +64,7 @@ void __init setup_ioapic()
 
 void ioapic_enable(int irq)
 {
-	iopaic_write(IOAPIC_RTE0 + 2*irq,  (irq + 0x20));
+	iopaic_write32(IOAPIC_RTE0 + 2*irq,  (irq + 0x20));
 }
 
 void ioapic_eoi(int irq)

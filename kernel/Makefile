@@ -4,7 +4,7 @@ CC	= $(PRIFIX)gcc -O2 -std=c17
 LD 	= $(PRIFIX)ld
 OBJCOPY = $(PRIFIX)objcopy
 
-CFLAGS  = -c -g -Wall -I../include   \
+CFLAGS  = -c -g -Wall -Wextra -I../include   \
           -mcmodel=large -fno-hosted -fno-stack-protector
 
 OBJS	= $(patsubst %.s,%.o ,$(wildcard *.s)) \
@@ -34,6 +34,8 @@ clock.o: clock.c ../include/cnix/kernel.h ../include/cnix/traps.h \
  ../include/cnix/asm.h ../include/cnix/desc.h ../include/cnix/lapic.h
 exceptions.o: exceptions.c ../include/cnix/kernel.h \
  ../include/cnix/traps.h ../include/cnix/asm.h ../include/cnix/sched.h
+hd.o: hd.c ../include/cnix/kernel.h ../include/cnix/asm.h \
+ ../include/cnix/lapic.h ../include/cnix/traps.h ../include/cnix/desc.h
 ioapic.o: ioapic.c ../include/cnix/kernel.h ../include/cnix/asm.h
 lapic.o: lapic.c ../include/cnix/kernel.h ../include/cnix/asm.h \
  ../include/cnix/lapic.h

@@ -1,4 +1,4 @@
-extern cstartup, _bss, _brk
+extern cstartup, mpstartup, gdt_tab, idt_tab, _bss, _brk
 global startup16, startup32, startup64
 
 PHYOFF	EQU	0xFFFF800000000000
@@ -129,6 +129,9 @@ startup64:
 
 	mov	dword [0x100000], 0      ; PML4E
 
+	lgdt	[rel _gdtr]
+	lidt	[rel _idtr]
+
 	mov	rdi, -1
 .spin:
 	xchg	rdi, [rel _cpu_id]
@@ -142,7 +145,14 @@ startup64:
 	add	qword [rel _stack], 8192
 	mov	rsp, [rel _stack]
 
-	jmp	cstartup
+	cmp	rdi, 0
+	jne	.mp
+
+	push	rdi
+	call	cstartup
+	pop	rdi
+.mp:
+	jmp	mpstartup
 
 _tmp_gdt:
 	dq	0
@@ -153,6 +163,11 @@ _tmp_gdt:
 _tmp_gdtptr:
 	dw	$ - _tmp_gdt - 1
 	dd	_tmp_gdt - $$ + KSTART
+
+_gdtr:	dw	4096 -1
+	dq	gdt_tab
+_idtr:	dw	4096 -1
+	dq	idt_tab
 
 	section .data
 _cpu_id:

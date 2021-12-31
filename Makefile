@@ -19,10 +19,10 @@ dep:
 	(cd kernel; make dep)
 
 run: $(IMAGE)
-	$(QEMU) -fda $(IMAGE)
+	$(QEMU) -fda $(IMAGE) -hda cnix-hda.img -boot a
 
 dbg: $(IMAGE)
-	$(QEMU) -fda $(IMAGE) -S -gdb tcp::4000 &
+	$(QEMU) -fda $(IMAGE) -hda cnix-hda.img -boot a -S -gdb tcp::4000 &
 	gdb -ex "file kernel/kernel.dbg" -ex "tar remote localhost:4000"
 
 clean:

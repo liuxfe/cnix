@@ -24,6 +24,7 @@
 
 #define T_IOAPIC	0x20
 #  define T_CLOCK	2
+#  define T_HD0		14
 
 #define T_LocalAPIC	0x38
 #  define T_LVT_CMCI  	0x38

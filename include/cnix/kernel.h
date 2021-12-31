@@ -1,14 +1,23 @@
 #ifndef _CNIX_KERNEL_H
 #define _CNIX_KERNEL_H
 
-typedef signed char             int8_t;
-typedef unsigned char           uint8_t;
-typedef signed short            int16_t;
-typedef unsigned short          uint16_t;
-typedef signed int              int32_t;
-typedef unsigned int            uint32_t;
-typedef signed long long        int64_t;
-typedef unsigned long long      uint64_t;
+typedef signed char	int8_t;
+typedef unsigned char	uint8_t;
+typedef signed short	int16_t;
+typedef unsigned short	uint16_t;
+typedef signed int	int32_t;
+typedef unsigned int	uint32_t;
+typedef signed long	int64_t;
+typedef unsigned long	uint64_t;
+_Static_assert(sizeof(int8_t) == 1, "");
+_Static_assert(sizeof(uint8_t) == 1, "");
+_Static_assert(sizeof(int16_t) == 2, "");
+_Static_assert(sizeof(uint16_t) == 2, "");
+_Static_assert(sizeof(int32_t) == 4, "");
+_Static_assert(sizeof(uint32_t) == 4, "");
+_Static_assert(sizeof(int64_t) == 8, "");
+_Static_assert(sizeof(uint64_t) == 8, "");
+_Static_assert(sizeof(long) == sizeof(void*), "");
 
 #define __init __attribute__((section (".init")))
 
@@ -47,5 +56,6 @@ extern long alloc_page();
 extern long alloc_2page();
 
 extern int NR_CPUS;
+extern long _data, _brk;
 
 #endif

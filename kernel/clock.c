@@ -20,7 +20,7 @@ void __init clock_init()
 	ioapic_enable(T_CLOCK);
 }
 
-void do_clock(struct trapregs* regs)
+void do_clock()
 {
 	++startup_click;
 	lapic_eoi();
