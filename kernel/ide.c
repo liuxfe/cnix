@@ -95,8 +95,8 @@ void setup_ide()
 	unsigned long nr_sector = buf[60] | buf[61] << 16;
 	printk("HD sectors=%d\n", nr_sector);
 
-	set_intr_gate(T_IOAPIC + T_HD0, (long)int_ide0);
-	ioapic_enable(T_HD0);
+	set_intr_gate(T_IDE0, (long)int_ide0);
+	ioapic_enable(T_IDE0);
 }
 
 void __attribute__((optimize("O0"))) do_ide0()

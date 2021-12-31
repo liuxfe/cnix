@@ -1,5 +1,6 @@
 #include <cnix/kernel.h>
 #include <cnix/asm.h>
+#include <cnix/traps.h>
 
 #define IOAPIC_ID	0x00
 #define IOAPIC_VER	0x01
@@ -64,7 +65,7 @@ void __init setup_ioapic()
 
 void ioapic_enable(int irq)
 {
-	iopaic_write32(IOAPIC_RTE0 + 2*irq,  (irq + 0x20));
+	iopaic_write32(IOAPIC_RTE0 + 2*(irq - T_IOAPIC),  irq);
 }
 
 void ioapic_eoi(int irq)

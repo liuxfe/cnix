@@ -23,8 +23,10 @@
 #define T_SIMDERR	19	/* SIMD floating point error		*/
 
 #define T_IOAPIC	0x20
-#  define T_CLOCK	2
-#  define T_HD0		14
+#  define T_8259A	0x20	// Unused.
+#  define T_KEYBOARD	0x21
+#  define T_CLOCK	0x22
+#  define T_IDE0	0x2E
 
 #define T_LocalAPIC	0x38
 #  define T_LVT_CMCI  	0x38

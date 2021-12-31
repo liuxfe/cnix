@@ -86,6 +86,8 @@ extern void setup_ide();
 extern void lapic_init(long cpu_id);
 extern void sched_init(long cpu_id);
 extern void useable_mem();
+extern void setup_kbd();
+
 void __init cstartup()
 {
 	console_early_init();
@@ -98,6 +100,7 @@ void __init cstartup()
 	time_init();
 	clock_init();
 	useable_mem();
+	setup_kbd();
 	printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
 }
 
