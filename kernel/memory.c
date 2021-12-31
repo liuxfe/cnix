@@ -4,6 +4,14 @@
 #include <cnix/traps.h>
 #include <cnix/spinlock.h>
 
+#define KB * 1024ULL
+#define MB * 1024 KB
+#define GB * 1024 MB
+
+extern struct{
+	uint64_t entry[4096/8];
+} pml4e, pdpe0, pde0, pde1, pde2, pde3, pde4, pde5, pde6, pde7, pte0;
+
 struct E820_struct {
     uint64_t  addr;
     uint64_t  len;
@@ -38,7 +46,8 @@ struct mem_zone{
 	uint64_t end;
 	uint64_t free;
 } mem_zone[NR_ZONE_MAX] = { 0 };
-int NR_ZONE = 0;
+
+static int NR_ZONE = 0;
 
 static void __init setup_zone()
 {
@@ -55,18 +64,18 @@ static void __init setup_zone()
 		if(E820->addr < _mem_start){
 			mem_zone[i].start = _mem_start;
 			mem_zone[i].end = E820->addr + E820->len;
-			if(mem_zone[i].end > 8 * 1024 * 1024 * 1024ULL)
-				mem_zone[i].end = 8 * 1024 * 1024 * 1024ULL;
+			if(mem_zone[i].end > 8 GB)
+				mem_zone[i].end = 8 GB;
 
 			mem_zone[i].free = mem_zone[i].start;
 			i++;
 		}else{
-			if(E820->addr > 8 * 1024 * 1024 * 1024ULL)
+			if(E820->addr > 8 GB)
 				break;
 			mem_zone[i].start = E820->addr;
 			mem_zone[i].end = E820->addr + E820->len;
-			if(mem_zone[i].end > 8 * 1024 * 1024 * 1024ULL)
-				mem_zone[i].end = 8 * 1024 * 1024 * 1024ULL;
+			if(mem_zone[i].end > 8 GB)
+				mem_zone[i].end = 8 GB;
 
 			mem_zone[i].free = mem_zone[i].start;
 			i++;
@@ -74,9 +83,9 @@ static void __init setup_zone()
 	}
 	NR_ZONE = i;
 
-	printk("Useable memory:\n");
-	for(i=0; i<NR_ZONE;i++)
-		printk("  %0#18x-%0#18x\n", mem_zone[i].start, mem_zone[i].end);
+	//printk("Useable memory:\n");
+	//for(i=0; i<NR_ZONE;i++)
+	//	printk("  %0#18x-%0#18x\n", mem_zone[i].start, mem_zone[i].end);
 }
 
 static spinlock_t mem_alloc_lock = { SPIN_UNLOCK };
@@ -110,13 +119,6 @@ long alloc_2page()
 	printk("OOM");
 	return 0;
 }
-
-extern struct{
-	uint64_t entry[4096/8];
-} pml4e, pdpe0, pde0, pde1, pde2, pde3, pde4, pde5, pde6, pde7, pte0;
-#define KB * 1024
-#define MB * 1024 KB
-#define GB * 1024 MB
 
 static inline void setup_pgt()
 {
@@ -153,4 +155,12 @@ void __init setup_mem()
 {
 	setup_pgt();
 	setup_zone();
+}
+
+
+void useable_mem()
+{
+	printk("Useable memory:\n");
+	for(int i=0; i<NR_ZONE;i++)
+		printk("  %0#18x-%0#18x\n", mem_zone[i].start, mem_zone[i].end);
 }
