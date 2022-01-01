@@ -1,9 +1,10 @@
+#include <cnix/config.h>
 #include <cnix/kernel.h>
 #include <cnix/asm.h>
 
-unsigned long cur_org = __p2v(0xb8000);
-int cur_x = 0;
-int cur_y = 0;
+static unsigned long cur_org = __p2v(0xb8000);
+static int cur_x = 0;
+static int cur_y = 0;
 
 static void set_cur()
 {

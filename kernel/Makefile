@@ -30,27 +30,35 @@ clean:
 	-rm kernel.bin kernel.dbg kernel.map $(wildcard *.o)
 
 ###Depend
-clock.o: clock.c ../include/cnix/kernel.h ../include/cnix/traps.h \
- ../include/cnix/asm.h ../include/cnix/desc.h ../include/cnix/lapic.h
-exceptions.o: exceptions.c ../include/cnix/kernel.h \
- ../include/cnix/traps.h ../include/cnix/asm.h ../include/cnix/sched.h
-ide.o: ide.c ../include/cnix/kernel.h ../include/cnix/asm.h \
- ../include/cnix/lapic.h ../include/cnix/traps.h ../include/cnix/desc.h
-ioapic.o: ioapic.c ../include/cnix/kernel.h ../include/cnix/asm.h \
- ../include/cnix/traps.h
-keyboard.o: keyboard.c ../include/cnix/kernel.h ../include/cnix/asm.h \
- ../include/cnix/traps.h ../include/cnix/desc.h ../include/cnix/lapic.h
-lapic.o: lapic.c ../include/cnix/kernel.h ../include/cnix/asm.h \
+clock.o: clock.c ../include/cnix/config.h ../include/cnix/kernel.h \
+ ../include/cnix/traps.h ../include/cnix/asm.h ../include/cnix/desc.h \
  ../include/cnix/lapic.h
-memory.o: memory.c ../include/cnix/kernel.h ../include/cnix/asm.h \
- ../include/cnix/desc.h ../include/cnix/traps.h \
- ../include/cnix/spinlock.h
-printk.o: printk.c ../include/cnix/kernel.h ../include/cnix/spinlock.h
-sched.o: sched.c ../include/cnix/kernel.h ../include/cnix/sched.h \
+exceptions.o: exceptions.c ../include/cnix/config.h \
+ ../include/cnix/kernel.h ../include/cnix/traps.h ../include/cnix/asm.h \
+ ../include/cnix/sched.h
+ide.o: ide.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/asm.h ../include/cnix/lapic.h ../include/cnix/traps.h \
  ../include/cnix/desc.h
-smp.o: smp.c ../include/cnix/kernel.h ../include/cnix/lapic.h
-startup.o: startup.c ../include/cnix/kernel.h ../include/cnix/asm.h \
- ../include/cnix/desc.h ../include/cnix/traps.h
-time.o: time.c ../include/cnix/kernel.h ../include/cnix/asm.h
-vga.o: vga.c ../include/cnix/kernel.h ../include/cnix/asm.h
+ioapic.o: ioapic.c ../include/cnix/config.h ../include/cnix/kernel.h \
+ ../include/cnix/asm.h ../include/cnix/traps.h
+keyboard.o: keyboard.c ../include/cnix/config.h ../include/cnix/kernel.h \
+ ../include/cnix/asm.h ../include/cnix/traps.h ../include/cnix/desc.h \
+ ../include/cnix/lapic.h
+lapic.o: lapic.c ../include/cnix/config.h ../include/cnix/kernel.h \
+ ../include/cnix/asm.h ../include/cnix/lapic.h
+memory.o: memory.c ../include/cnix/config.h ../include/cnix/kernel.h \
+ ../include/cnix/asm.h ../include/cnix/desc.h ../include/cnix/traps.h \
+ ../include/cnix/spinlock.h
+printk.o: printk.c ../include/cnix/config.h ../include/cnix/kernel.h \
+ ../include/cnix/spinlock.h
+sched.o: sched.c ../include/cnix/config.h ../include/cnix/kernel.h \
+ ../include/cnix/sched.h ../include/cnix/asm.h ../include/cnix/lapic.h \
+ ../include/cnix/traps.h ../include/cnix/desc.h
+smp.o: smp.c ../include/cnix/config.h ../include/cnix/kernel.h \
+ ../include/cnix/lapic.h
+startup.o: startup.c ../include/cnix/config.h ../include/cnix/kernel.h \
+ ../include/cnix/asm.h ../include/cnix/desc.h ../include/cnix/traps.h
+time.o: time.c ../include/cnix/config.h ../include/cnix/kernel.h \
+ ../include/cnix/asm.h
+vga.o: vga.c ../include/cnix/config.h ../include/cnix/kernel.h \
+ ../include/cnix/asm.h

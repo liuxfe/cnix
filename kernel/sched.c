@@ -1,3 +1,4 @@
+#include <cnix/config.h>
 #include <cnix/kernel.h>
 #include <cnix/sched.h>
 #include <cnix/asm.h>
@@ -7,7 +8,7 @@
 
 extern void int_lvt_timer();
 
-struct cpu_struct cpu_struct[NR_CPU_MAX] = { 0 };
+struct cpu_struct cpu_tab[NR_CPU_MAX] = { 0 };
 
 #define rdcoms(_r,_i) 	{ outb(0x70, 0x80| _i); _r = inb(0x71); }
 #define COMS_SEC	0x00
@@ -104,7 +105,7 @@ void __init sched_init(long cpu_id)
 		cli();while(1){}
 	}
 
-	struct cpu_struct* cpu = cpu_struct + cpu_id;
+	struct cpu_struct* cpu = cpu_tab + cpu_id;
 	cpu->idle = init_idle_thread(cpu_id);
 	cpu->ready = NULL;
 
@@ -129,7 +130,7 @@ void __init sched_init(long cpu_id)
 extern void __switch_ctx(long *from, long to);
 void do_sched()
 {
-	struct cpu_struct* cpu = cpu_struct+ me->cpu_id;
+	struct cpu_struct* cpu = cpu_tab+ me->cpu_id;
 	union thread* to=cpu->idle;
 
 	if(cpu->ready != NULL){

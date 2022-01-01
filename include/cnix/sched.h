@@ -1,8 +1,6 @@
 #ifndef _CNIX_SCHED_H
 #define _CNIX_SCHED_H
 
-#define NR_CPU_MAX	64
-
 union thread{
 	struct{
 		long stack;
@@ -22,7 +20,7 @@ struct cpu_struct{
 	union thread *ready;
 };
 
-extern struct cpu_struct cpu_struct[NR_CPU_MAX];
+extern struct cpu_struct cpu_tab[NR_CPU_MAX];
 
 static inline union thread* CURTHREAD()
 {

@@ -34,6 +34,9 @@ _Static_assert(sizeof(long) == sizeof(void*), "");
 #define __p2v(a)	((a) + PHYOFF)
 #define __v2p(a)	((a) - PHYOFF)
 
+#define KB * 1024ULL
+#define MB * 1024 KB
+#define GB * 1024 MB
 
 #define memcpy(_d,_s,_c)                \
 	__asm__ __volatile__ (          \

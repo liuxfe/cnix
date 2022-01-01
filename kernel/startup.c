@@ -1,7 +1,16 @@
+#include <cnix/config.h>
 #include <cnix/kernel.h>
 #include <cnix/asm.h>
 #include <cnix/desc.h>
 #include <cnix/traps.h>
+
+static inline void setup_gdt()
+{
+	gdt_tab.gdt[1].value = 0x0020980000000000   ; // Kernel Code
+	gdt_tab.gdt[2].value = 0x0000920000000000   ; // Kernel Data
+	gdt_tab.gdt[3].value = 0x0020f80000000000   ; // User Code
+	gdt_tab.gdt[4].value = 0x0000f20000000000   ; // User Data
+}
 
 extern void int_div_zero();
 extern void int_debug();
@@ -23,14 +32,6 @@ extern void int_align_check();
 extern void int_machine_check();
 extern void int_SIMD_fault();
 extern void int_default_ignore();
-
-static inline void setup_gdt()
-{
-	gdt_tab.gdt[1].value = 0x0020980000000000   ; // Kernel Code
-	gdt_tab.gdt[2].value = 0x0000920000000000   ; // Kernel Data
-	gdt_tab.gdt[3].value = 0x0020f80000000000   ; // User Code
-	gdt_tab.gdt[4].value = 0x0000f20000000000   ; // User Data
-}
 
 static inline void setup_idt()
 {

@@ -1,3 +1,4 @@
+#include <cnix/config.h>
 #include <cnix/kernel.h>
 #include <cnix/asm.h>
 #include <cnix/lapic.h>

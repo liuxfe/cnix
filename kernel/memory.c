@@ -1,12 +1,9 @@
+#include <cnix/config.h>
 #include <cnix/kernel.h>
 #include <cnix/asm.h>
 #include <cnix/desc.h>
 #include <cnix/traps.h>
 #include <cnix/spinlock.h>
-
-#define KB * 1024ULL
-#define MB * 1024 KB
-#define GB * 1024 MB
 
 extern struct{
 	uint64_t entry[4096/8];
