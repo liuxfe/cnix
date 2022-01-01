@@ -24,22 +24,6 @@ extern void int_machine_check();
 extern void int_SIMD_fault();
 extern void int_default_ignore();
 
-#if 0
-static inline void i8259_init()
-{
-	outb(0x20, 0x11);
-	outb(0xa0, 0x11);
-	outb(0x21, 0x20);
-	outb(0xa1, 0x28);
-	outb(0x21, 0x04);
-	outb(0xa1, 0x02);
-	outb(0x21, 0x01);
-	outb(0xa1, 0x01);
-	outb(0x21, 0xfb);
-	outb(0xa1, 0xff);
-}
-#endif
-
 static inline void setup_gdt()
 {
 	gdt_tab.gdt[1].value = 0x0020980000000000   ; // Kernel Code
@@ -76,10 +60,33 @@ static inline void setup_idt()
 			set_intr_gate(i, (long)int_default_ignore);
 }
 
+static inline void setup_i8259()
+{
+#if 0
+	outb(0x20, 0x11);
+	outb(0xa0, 0x11);
+	outb(0x21, 0x20);
+	outb(0xa1, 0x28);
+	outb(0x21, 0x04);
+	outb(0xa1, 0x02);
+	outb(0x21, 0x01);
+	outb(0xa1, 0x01);
+	outb(0x21, 0xfb);
+	outb(0xa1, 0xff);
+#endif
+}
+
+extern void setup_ioapic();
+
+static inline void setup_pic()
+{
+	setup_i8259();
+	setup_ioapic();
+}
+
 extern void console_early_init();
 extern void setup_smp();
 extern void setup_mem();
-extern void setup_ioapic();
 extern void clock_init();
 extern void time_init();
 extern void setup_ide();
@@ -88,28 +95,26 @@ extern void sched_init(long cpu_id);
 extern void useable_mem();
 extern void setup_kbd();
 
-void __init cstartup()
+void __init cstartup(long cpu_id)
 {
-	console_early_init();
-	setup_gdt();
-	setup_idt();
-	setup_smp();
-	setup_mem();
-	setup_ioapic();
+	if(cpu_id == 0){
+		console_early_init();
+		setup_gdt();
+		setup_idt();
+		setup_smp();
+		setup_mem();
+		setup_pic();
 
-	time_init();
-	clock_init();
-	useable_mem();
-	setup_kbd();
-	printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
-}
-
-void __init mpstartup(long cpu_id)
-{
-	//lapic_init(cpu_id);
+		time_init();
+		clock_init();
+		useable_mem();
+		setup_kbd();
+		setup_ide();
+		printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
+	}
+	lapic_init(cpu_id);
 	sched_init(cpu_id);
 	printk("CPU%d started\n", cpu_id);
-	setup_ide();
 
 	__asm__ __volatile__("1:;sti;hlt;jmp 1b;");
 }

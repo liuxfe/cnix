@@ -1,4 +1,4 @@
-extern cstartup, mpstartup, gdt_tab, idt_tab, _bss, _brk
+extern cstartup, gdt_tab, idt_tab, _bss, _brk
 global startup16, startup32, startup64
 
 PHYOFF	EQU	0xFFFF800000000000
@@ -138,21 +138,14 @@ startup64:
 	cmp	rdi, -1
 	je	.spin
 
+	add	qword [rel _stack], 8192
+	mov	rsp, [rel _stack]
+
 	mov	rax, rdi
 	inc	rax
 	mov	qword [rel _cpu_id], rax ; release lock
 
-	add	qword [rel _stack], 8192
-	mov	rsp, [rel _stack]
-
-	cmp	rdi, 0
-	jne	.mp
-
-	push	rdi
-	call	cstartup
-	pop	rdi
-.mp:
-	jmp	mpstartup
+	jmp	cstartup
 
 _tmp_gdt:
 	dq	0
