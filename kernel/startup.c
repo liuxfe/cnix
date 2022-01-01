@@ -85,16 +85,53 @@ static inline void setup_pic()
 	setup_ioapic();
 }
 
+#define bcd2int(_v)     (_v = (_v & 0x0f) + (_v >> 4) * 10)
+#define rdcoms(_r,_i) 	{ outb(0x70, 0x80| _i); _r = inb(0x71); }
+long kstartup_timestmp = 0;
+
+extern long mktime(int year, int month, int day, int hour, int min, int sec);
+static inline void time_init()
+{
+	char ylow, yhigh, month, day, hour, minute, second, sec2;
+
+	do {
+		rdcoms(second, 0x00);
+		rdcoms(ylow,   0x09);
+		rdcoms(yhigh,  0x32);
+		rdcoms(month,  0x08);
+		rdcoms(day,    0x07);
+		rdcoms(hour,   0x04);
+		rdcoms(minute, 0x02);
+		rdcoms(sec2,   0x00);
+	} while (second != sec2);
+
+	bcd2int(ylow);
+	bcd2int(yhigh);
+	bcd2int(month);
+	bcd2int(day);
+	bcd2int(hour);
+	bcd2int(minute);
+	bcd2int(second);
+
+	kstartup_timestmp = mktime(ylow + yhigh * 100,
+			           month, day, hour, minute, second);
+#if 1
+	printk("Start time: %d-%d-%d %d:%d:%d \n",
+		   ylow + yhigh * 100, month, day, hour, minute, second);
+	printk("Start timestmp:%d\n", kstartup_timestmp);
+#endif
+}
+
 extern void console_early_init();
 extern void setup_smp();
 extern void setup_mem();
 extern void clock_init();
-extern void time_init();
 extern void setup_ide();
 extern void lapic_init(long cpu_id);
 extern void sched_init(long cpu_id);
 extern void useable_mem();
 extern void setup_kbd();
+extern void time_init();
 
 void __init cstartup(long cpu_id)
 {

@@ -49,6 +49,7 @@ lapic.o: lapic.c ../include/cnix/config.h ../include/cnix/kernel.h \
 memory.o: memory.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/asm.h ../include/cnix/desc.h ../include/cnix/traps.h \
  ../include/cnix/spinlock.h
+mktime.o: mktime.c
 printk.o: printk.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/spinlock.h
 sched.o: sched.c ../include/cnix/config.h ../include/cnix/kernel.h \
@@ -58,8 +59,6 @@ smp.o: smp.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/lapic.h
 startup.o: startup.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/asm.h ../include/cnix/desc.h ../include/cnix/traps.h
-time.o: time.c ../include/cnix/config.h ../include/cnix/kernel.h \
- ../include/cnix/asm.h
 vga.o: vga.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/asm.h
 vsprintf.o: vsprintf.c ../include/cnix/kernel.h
