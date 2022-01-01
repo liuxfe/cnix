@@ -34,9 +34,12 @@ clock.o: clock.c ../include/cnix/kernel.h ../include/cnix/traps.h \
  ../include/cnix/asm.h ../include/cnix/desc.h ../include/cnix/lapic.h
 exceptions.o: exceptions.c ../include/cnix/kernel.h \
  ../include/cnix/traps.h ../include/cnix/asm.h ../include/cnix/sched.h
-hd.o: hd.c ../include/cnix/kernel.h ../include/cnix/asm.h \
+ide.o: ide.c ../include/cnix/kernel.h ../include/cnix/asm.h \
  ../include/cnix/lapic.h ../include/cnix/traps.h ../include/cnix/desc.h
-ioapic.o: ioapic.c ../include/cnix/kernel.h ../include/cnix/asm.h
+ioapic.o: ioapic.c ../include/cnix/kernel.h ../include/cnix/asm.h \
+ ../include/cnix/traps.h
+keyboard.o: keyboard.c ../include/cnix/kernel.h ../include/cnix/asm.h \
+ ../include/cnix/traps.h ../include/cnix/desc.h ../include/cnix/lapic.h
 lapic.o: lapic.c ../include/cnix/kernel.h ../include/cnix/asm.h \
  ../include/cnix/lapic.h
 memory.o: memory.c ../include/cnix/kernel.h ../include/cnix/asm.h \
