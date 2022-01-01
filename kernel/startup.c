@@ -83,6 +83,22 @@ void __init init()
 	time_init();
 	clock_init();
 	useable_mem();
+
+	// move to user mode (ring3)
+	long user_stack = __p2v(alloc_2page());
+	cpu_tab[me->cpu_id].tss.rsp0 = &me->canarry2;
+	__asm__ __volatile__(
+		"leaq __r(%%rip), %%rax\n\t"
+		"pushq	$0x23\n\t"
+		"pushq	%%rcx\n\t"
+		"pushq  $0x13200\n\t"
+		"pushq	$0x1b\n\t"
+		"pushq  %%rax\n\t"
+		"iretq\n\t"
+		"__r:\n\t"
+		::"c"(user_stack)
+	);
+	while(1){}
 	__asm__ __volatile__("1:;sti;hlt;jmp 1b;");
 }
 
