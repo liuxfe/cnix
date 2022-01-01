@@ -33,6 +33,8 @@ clean:
 clock.o: clock.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/traps.h ../include/cnix/asm.h ../include/cnix/desc.h \
  ../include/cnix/lapic.h
+cpu.o: cpu.c ../include/cnix/config.h ../include/cnix/kernel.h \
+ ../include/cnix/desc.h ../include/cnix/traps.h ../include/cnix/sched.h
 exceptions.o: exceptions.c ../include/cnix/config.h \
  ../include/cnix/kernel.h ../include/cnix/traps.h ../include/cnix/asm.h \
  ../include/cnix/sched.h
@@ -45,7 +47,8 @@ keyboard.o: keyboard.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/asm.h ../include/cnix/traps.h ../include/cnix/desc.h \
  ../include/cnix/lapic.h
 lapic.o: lapic.c ../include/cnix/config.h ../include/cnix/kernel.h \
- ../include/cnix/asm.h ../include/cnix/lapic.h
+ ../include/cnix/asm.h ../include/cnix/lapic.h ../include/cnix/traps.h \
+ ../include/cnix/desc.h
 memory.o: memory.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/asm.h ../include/cnix/desc.h ../include/cnix/traps.h \
  ../include/cnix/spinlock.h
@@ -53,8 +56,7 @@ mktime.o: mktime.c
 printk.o: printk.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/spinlock.h
 sched.o: sched.c ../include/cnix/config.h ../include/cnix/kernel.h \
- ../include/cnix/sched.h ../include/cnix/asm.h ../include/cnix/lapic.h \
- ../include/cnix/traps.h ../include/cnix/desc.h
+ ../include/cnix/sched.h
 smp.o: smp.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/lapic.h
 startup.o: startup.c ../include/cnix/config.h ../include/cnix/kernel.h \

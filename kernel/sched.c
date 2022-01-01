@@ -1,40 +1,10 @@
 #include <cnix/config.h>
 #include <cnix/kernel.h>
 #include <cnix/sched.h>
-#include <cnix/asm.h>
-#include <cnix/lapic.h>
-#include <cnix/traps.h>
-#include <cnix/desc.h>
 
-extern void int_lvt_timer();
+
 
 struct cpu_struct cpu_tab[NR_CPU_MAX] = { 0 };
-
-#define rdcoms(_r,_i) 	{ outb(0x70, 0x80| _i); _r = inb(0x71); }
-#define COMS_SEC	0x00
-#define HZ 60
-
-static uint64_t __init get_tsc_diff()
-{
-	volatile long s1, s2;
-	uint64_t tsc1, tsc2;
-
-	s1 = s2 = 0;
-	rdcoms(s1, COMS_SEC);
-	do{
-		rdcoms(s2, COMS_SEC);
-	}while(s1 == s2);
-	tsc1 = rdtsc();
-
-	s1 = s2 = 0;
-	rdcoms(s1, COMS_SEC);
-	do{
-		rdcoms(s2, COMS_SEC);
-	}while(s1 == s2);
-	tsc2 = rdtsc();
-
-	return tsc2 - tsc1;
-}
 
 // Save TS, XMM, YMM ?
 struct ctx_struct{
@@ -74,24 +44,6 @@ void putc_loop(long c)
 	}
 }
 
-static union thread* init_idle_thread(long cpu_id)
-{
-	union thread* th = (union thread*)((long)&_brk + cpu_id * 8192);
-
-	th->cpu_id = cpu_id;
-	//th->stack = (long)&th->canarry2;
-	return th;
-}
-
-void __init cpu_init()
-{
-	struct cpu_struct *cpu = cpu_tab + 0;
-	for(int i = 0; i < NR_CPUS; i++, cpu++){
-		cpu->idle = init_idle_thread(i);
-		cpu->ready = NULL;
-	}
-}
-
 union thread* kthread(long func, long arg, long cpu_id)
 {
 	long p = alloc_2page();
@@ -124,11 +76,7 @@ void __init sched_init(long cpu_id)
 		kthread((long)putc_loop, 'C', cpu_id);
 	//}
 */
-kthread((long)putc_loop, 'H' + cpu_id, cpu_id);
-	// Setup Local Timer.
-	set_intr_gate(T_LVT_TIMER, (long)int_lvt_timer);
-	lapic_write(LAPIC_LVT_TIMER, (1<<17)|T_LVT_TIMER);
-	lapic_write(LAPIC_TICR, get_tsc_diff()/HZ/2);
+	kthread((long)putc_loop, 'H' + cpu_id, cpu_id);
 }
 
 extern void __switch_ctx(long *from, long to);
@@ -151,10 +99,4 @@ void do_sched()
 	//union thread*  to = (me == cpu->th1) ? cpu->th2: cpu->th1;
 	if(to != me)
 		__switch_ctx(&me->stack,to->stack);
-}
-
-void do_lvt_timer()
-{
-	lapic_eoi();
-	do_sched();
 }
