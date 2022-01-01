@@ -1,6 +1,25 @@
 #ifndef _CNIX_SCHED_H
 #define _CNIX_SCHED_H
 
+struct TSS_struct{
+	uint32_t	reserved1;
+	uint64_t	rsp0;
+	uint64_t	rsp1;
+	uint64_t	rsp2;
+	uint64_t	reserved2;
+	uint64_t	ist1;
+	uint64_t	ist2;
+	uint64_t	ist3;
+	uint64_t	ist4;
+	uint64_t	ist5;
+	uint64_t	ist6;
+	uint64_t	ist7;
+	uint64_t	reserved3;
+	uint16_t	reserved4;
+	uint16_t	io_map_base_address;
+} __attribute__((packed)) ;
+_Static_assert(sizeof(struct TSS_struct) == 104, "");
+
 union thread{
 	struct{
 		long stack;
@@ -16,6 +35,7 @@ union thread{
 _Static_assert(sizeof(union thread) == 8192, "");
 
 struct cpu_struct{
+	struct TSS_struct tss;
 	union thread *idle;
 	union thread *ready;
 };

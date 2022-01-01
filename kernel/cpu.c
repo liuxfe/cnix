@@ -61,6 +61,17 @@ static inline void setup_idt()
 			set_intr_gate(i, (long)int_default_ignore);
 }
 
+static inline void set_tss(int idx, long base)
+{
+	gdt_tab.tss[idx].limit0_15 = sizeof(struct TSS_struct) - 1;
+	gdt_tab.tss[idx].base0_23  = base & 0xffffff;
+	gdt_tab.tss[idx].attr1 = 0x89;
+	//gdt_tab.tss[idx].limit16_19 = (base >> 16) & 0x0f ; // auto zero
+	//gdt_tab.tss[idx].attr2 = 0;
+	gdt_tab.tss[idx].base24_31 = (base >> 24) & 0xff;
+	gdt_tab.tss[idx].base32_63 = (base >> 32) & 0xffffffff;
+}
+
 static inline union thread* init_idle_thread(long cpu_id)
 {
 	union thread* th = (union thread*)((long)&_brk + cpu_id * 8192);
@@ -77,6 +88,7 @@ void __init setup_cpu()
 
         struct cpu_struct *cpu = cpu_tab + 0;
 	for(int i = 0; i < NR_CPUS; i++, cpu++){
+		set_tss(i, (long)&cpu->tss);
 		cpu->idle = init_idle_thread(i);
 		cpu->ready = NULL;
 	}

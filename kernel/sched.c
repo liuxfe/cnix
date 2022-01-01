@@ -2,8 +2,6 @@
 #include <cnix/kernel.h>
 #include <cnix/sched.h>
 
-
-
 struct cpu_struct cpu_tab[NR_CPU_MAX] = { 0 };
 
 // Save TS, XMM, YMM ?
@@ -36,14 +34,6 @@ static long build_ctx(long* p, long func, long arg)
 	return (long)ctx;
 }
 
-void putc_loop(long c)
-{
-	while(1){
-//		printk("%c", c);
-		__asm__ __volatile__("1:;sti;hlt;");
-	}
-}
-
 union thread* kthread(long func, long arg, long cpu_id)
 {
 	long p = alloc_2page();
@@ -61,22 +51,6 @@ union thread* kthread(long func, long arg, long cpu_id)
 	th->next = cpu->ready;
 	cpu->ready = th;
 	return th;
-}
-
-void __init sched_init(long cpu_id)
-{
-	/*if(cpu_id >= NR_CPU_MAX){
-		cli();while(1){}
-	}
-
-	//if(cpu_id !=0){
-		kthread((long)putc_loop, 'A' + cpu_id, cpu_id);
-		kthread((long)putc_loop, 'H' + cpu_id, cpu_id);
-	//} else{
-		kthread((long)putc_loop, 'C', cpu_id);
-	//}
-*/
-	kthread((long)putc_loop, 'H' + cpu_id, cpu_id);
 }
 
 extern void __switch_ctx(long *from, long to);

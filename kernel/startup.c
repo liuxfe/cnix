@@ -73,11 +73,9 @@ extern void setup_mem();
 extern void clock_init();
 extern void setup_ide();
 extern void setup_lapic(long cpu_id);
-extern void sched_init(long cpu_id);
 extern void useable_mem();
 extern void setup_kbd();
 extern void time_init();
-extern void cpu_init();
 
 void __init init()
 {
@@ -86,6 +84,14 @@ void __init init()
 	clock_init();
 	useable_mem();
 	__asm__ __volatile__("1:;sti;hlt;jmp 1b;");
+}
+
+void putc_loop(long c)
+{
+	while(1){
+		printk("%c", c);
+		__asm__ __volatile__("1:;sti;hlt;");
+	}
 }
 
 void __init cstartup(long cpu_id)
@@ -101,10 +107,16 @@ void __init cstartup(long cpu_id)
 
 		kthread((long)init, 0, 0);
 	}
-	sched_init(cpu_id);
+
+	if(cpu_id >= NR_CPUS)
+		__asm__ __volatile__("1:;cli;hlt;jmp 1b;");
+
 	setup_lapic(cpu_id);
 
-	printk("CPU%d started\n", cpu_id);
+	kthread((long)putc_loop, 'H' + cpu_id, cpu_id);
+	kthread((long)putc_loop, 'A' + cpu_id, cpu_id);
 
+	printk("CPU%d started\n", cpu_id);
+	__asm__ __volatile__("ltr %%ax;"::"a"((6+cpu_id * 2)<<3));
 	__asm__ __volatile__("1:;sti;hlt;jmp 1b;");
 }

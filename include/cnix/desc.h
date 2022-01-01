@@ -20,6 +20,22 @@ union IDTdesc64 {
 extern union IDTdesc64 idt_tab[256];
 _Static_assert(sizeof(idt_tab) == 4096, "IDT table size error");
 
+static inline void _set_idt64(long nr, long addr, long attr)
+{
+	union IDTdesc64 * idt = idt_tab + nr;
+
+	idt->high = 0x00000000ffff8000;
+	idt->low  = 0x00008E0000080000;
+
+	idt->offset0_15 = addr & 0xffff;
+	idt->offset16_31 = (addr >> 16) & 0xffff;
+	idt->attr = attr;
+}
+
+#define set_trap_gate(nr, addr) _set_idt64(nr, addr, 0x8F)
+#define set_intr_gate(nr, addr) _set_idt64(nr, addr, 0x8E)
+#define set_call_gate(nr, addr) _set_idt64(nr, addr, 0xEF)
+
 union GDTdesc {
     int64_t		value;
     struct {
@@ -57,21 +73,5 @@ extern struct {
         union TSSdesc   tss[NR_TSS];
 } gdt_tab;
 _Static_assert(sizeof(gdt_tab) == 4096, "GDT table size error");
-
-static inline void _set_idt64(long nr, long addr, long attr)
-{
-	union IDTdesc64 * idt = idt_tab + nr;
-
-	idt->high = 0x00000000ffff8000;
-	idt->low  = 0x00008E0000080000;
-
-	idt->offset0_15 = addr & 0xffff;
-	idt->offset16_31 = (addr >> 16) & 0xffff;
-	idt->attr = attr;
-}
-
-#define set_trap_gate(nr, addr) _set_idt64(nr, addr, 0x8F)
-#define set_intr_gate(nr, addr) _set_idt64(nr, addr, 0x8E)
-#define set_call_gate(nr, addr) _set_idt64(nr, addr, 0xEF)
 
 #endif
