@@ -62,3 +62,4 @@ time.o: time.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/asm.h
 vga.o: vga.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/asm.h
+vsprintf.o: vsprintf.c ../include/cnix/kernel.h

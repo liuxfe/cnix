@@ -26,6 +26,11 @@ _Static_assert(sizeof(long) == sizeof(void*), "");
 #define true	1
 #define false	0
 
+// stdarg
+#define va_list			__builtin_va_list
+#define va_start(ap, fmt)	__builtin_va_start(ap,fmt)
+#define va_arg(ap, type)	__builtin_va_arg(ap,type)
+
 // NULL
 #define NULL	((void*)0)
 
@@ -50,7 +55,8 @@ _Static_assert(sizeof(long) == sizeof(void*), "");
 
 #define memzero(_d,_c)  memset(_d, 0, _c)
 
-extern void printk(char* fmt, ...);
+extern long vsprintf(char* buf, const char* fmt, va_list ap);
+extern void printk(const char* fmt, ...);
 extern void ioapic_enable(int irq);
 extern void ioapic_eoi(int irq);
 extern void lapic_eoi();
