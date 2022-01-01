@@ -3,6 +3,7 @@
 #include <cnix/asm.h>
 #include <cnix/desc.h>
 #include <cnix/traps.h>
+#include <cnix/sched.h>
 
 static inline void setup_gdt()
 {
@@ -132,6 +133,13 @@ extern void sched_init(long cpu_id);
 extern void useable_mem();
 extern void setup_kbd();
 extern void time_init();
+extern void cpu_init();
+
+void __init init()
+{
+	printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
+	__asm__ __volatile__("1:;sti;hlt;jmp 1b;");
+}
 
 void __init cstartup(long cpu_id)
 {
@@ -143,15 +151,17 @@ void __init cstartup(long cpu_id)
 		setup_mem();
 		setup_pic();
 
+		cpu_init();
 		time_init();
 		clock_init();
 		useable_mem();
 		setup_kbd();
 		setup_ide();
-		printk("%s\n%s\n","Hello World!","Welcome to CNIX!");
+		kthread((long)init, 0, 0);
 	}
 	lapic_init(cpu_id);
 	sched_init(cpu_id);
+	//kthread((long)init, 0, 0);
 	printk("CPU%d started\n", cpu_id);
 
 	__asm__ __volatile__("1:;sti;hlt;jmp 1b;");

@@ -31,4 +31,6 @@ static inline union thread* CURTHREAD()
 
 #define me CURTHREAD()
 
+extern union thread* kthread(long func, long arg, long cpu_id);
+
 #endif

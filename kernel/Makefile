@@ -58,7 +58,8 @@ sched.o: sched.c ../include/cnix/config.h ../include/cnix/kernel.h \
 smp.o: smp.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/lapic.h
 startup.o: startup.c ../include/cnix/config.h ../include/cnix/kernel.h \
- ../include/cnix/asm.h ../include/cnix/desc.h ../include/cnix/traps.h
+ ../include/cnix/asm.h ../include/cnix/desc.h ../include/cnix/traps.h \
+ ../include/cnix/sched.h
 vga.o: vga.c ../include/cnix/config.h ../include/cnix/kernel.h \
  ../include/cnix/asm.h
 vsprintf.o: vsprintf.c ../include/cnix/kernel.h

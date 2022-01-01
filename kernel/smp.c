@@ -105,7 +105,7 @@ void __init setup_smp()
 
 	__mp= mpsearch();
 	if(!__mp){
-		printk("_MP_  not found ！");
+		printk("_MP_  not found !");
 		while(1){};
 	}
 

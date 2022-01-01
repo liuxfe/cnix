@@ -66,61 +66,65 @@ static long build_ctx(long* p, long func, long arg)
 	return (long)ctx;
 }
 
-static union thread* create_thread(long func, long arg)
-{
-	union thread* th;
-	long p = alloc_2page();
-	if(!p){
-		printk("OOM");
-		while(1);
-	}
-	th = (union thread*)__p2v(p);
-	th->stack = build_ctx(&(th->canarry2), func, arg);
-	th->next = NULL;
-	return th;
-}
-
 void putc_loop(long c)
 {
 	while(1){
-		printk("%c", c);
+//		printk("%c", c);
 		__asm__ __volatile__("1:;sti;hlt;");
 	}
 }
 
 static union thread* init_idle_thread(long cpu_id)
 {
-	union thread* th = me;
+	union thread* th = (union thread*)((long)&_brk + cpu_id * 8192);
 
 	th->cpu_id = cpu_id;
-	th->stack = (long)&me->canarry2;
+	//th->stack = (long)&th->canarry2;
+	return th;
+}
+
+void __init cpu_init()
+{
+	struct cpu_struct *cpu = cpu_tab + 0;
+	for(int i = 0; i < NR_CPUS; i++, cpu++){
+		cpu->idle = init_idle_thread(i);
+		cpu->ready = NULL;
+	}
+}
+
+union thread* kthread(long func, long arg, long cpu_id)
+{
+	long p = alloc_2page();
+	if(!p){
+		printk("OOM");
+		while(1);
+	}
+
+	union thread* th = (union thread*)__p2v(p);
+	th->stack = build_ctx(&th->canarry2, func, arg);
+	th->cpu_id = cpu_id;
+	//th->next = NULL;
+	// BUG Note: data race
+	struct cpu_struct* cpu = cpu_tab + cpu_id;
+	th->next = cpu->ready;
+	cpu->ready = th;
 	return th;
 }
 
 void __init sched_init(long cpu_id)
 {
-	union thread* th;
-
-	if(cpu_id >= NR_CPU_MAX){
+	/*if(cpu_id >= NR_CPU_MAX){
 		cli();while(1){}
 	}
 
-	struct cpu_struct* cpu = cpu_tab + cpu_id;
-	cpu->idle = init_idle_thread(cpu_id);
-	cpu->ready = NULL;
-
-	if(cpu_id !=0){
-		th = create_thread((long)putc_loop, 'A' + cpu_id);
-		th->cpu_id = cpu_id;
-		th->next = cpu->ready;
-		cpu->ready = th;
-
-		th = create_thread((long)putc_loop, 'H' + cpu_id);
-		th->next = cpu->ready;
-		th->cpu_id = cpu_id;
-		cpu->ready = th;
-	}
-
+	//if(cpu_id !=0){
+		kthread((long)putc_loop, 'A' + cpu_id, cpu_id);
+		kthread((long)putc_loop, 'H' + cpu_id, cpu_id);
+	//} else{
+		kthread((long)putc_loop, 'C', cpu_id);
+	//}
+*/
+kthread((long)putc_loop, 'H' + cpu_id, cpu_id);
 	// Setup Local Timer.
 	set_intr_gate(T_LVT_TIMER, (long)int_lvt_timer);
 	lapic_write(LAPIC_LVT_TIMER, (1<<17)|T_LVT_TIMER);
@@ -132,7 +136,7 @@ void do_sched()
 {
 	struct cpu_struct* cpu = cpu_tab+ me->cpu_id;
 	union thread* to=cpu->idle;
-
+	// BUG: last have 2.
 	if(cpu->ready != NULL){
 		to = cpu->ready;
 		cpu->ready = to->next;
